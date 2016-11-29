@@ -25,6 +25,7 @@
   "dependencies": {
     "artpacks": "^1.0.1",
     "browserify": "^13.1.1",
+    "dockerode": "^2.3.1",
     "express": "^4.14.0",
     "morgan": "^1.7.0",
     "voxel-engine": "git+https://github.com/rajch/voxel-engine.git",

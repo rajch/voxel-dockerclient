@@ -1,0 +1,28 @@
+{
+  "name": "voxel-dockerclient",
+  "version": "0.1.0",
+  "description": "An experimental minecraft-like docker client, built using voxel.js.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rajch/voxel-dockerclient.git"
+  },
+  "keywords": [
+    "voxel",
+    "docker",
+    "voxel.js"
+  ],
+  "author": "Raj Chaudhuri",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rajch/voxel-dockerclient/issues"
+  },
+  "homepage": "https://github.com/rajch/voxel-dockerclient#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "voxel-engine": "git+https://github.com/rajch/voxel-engine.git"
+  }
+}

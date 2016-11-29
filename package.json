@@ -22,7 +22,12 @@
   },
   "homepage": "https://github.com/rajch/voxel-dockerclient#readme",
   "dependencies": {
+    "artpacks": "^1.0.1",
     "express": "^4.14.0",
-    "voxel-engine": "git+https://github.com/rajch/voxel-engine.git"
+    "voxel-engine": "git+https://github.com/rajch/voxel-engine.git",
+    "voxel-player": "^0.1.0",
+    "voxel-plugins": "^0.5.0",
+    "voxel-registry": "^0.8.3",
+    "voxel-walk": "0.0.5"
   }
 }

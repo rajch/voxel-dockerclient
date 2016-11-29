@@ -1,0 +1,7 @@
+node_modules
+typings
+.dockerignore
+.gitignore
+Dockerfile
+jsconfig.json
+typings.json

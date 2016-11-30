@@ -25,6 +25,7 @@
   "homepage": "https://github.com/rajch/voxel-dockerclient#readme",
   "dependencies": {
     "artpacks": "^1.0.1",
+    "axios": "^0.15.3",
     "browserify": "^13.1.1",
     "dockerode": "^2.3.1",
     "express": "^4.14.0",

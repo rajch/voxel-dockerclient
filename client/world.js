@@ -5,13 +5,19 @@ require('voxel-blockdata');
 
 var Player = require('./player');
 var Container = require('./container');
+var ApiClient = require('./apiclient');
 
 // The docker world
 var dockerworld = function (opts) {
     var thisworld = this;
     var game;
     var player;
-    var containers = {};
+
+    var containers = [];
+    var containernames = {};
+    var nextcontainerposition = [5];
+
+    var apiclient = new ApiClient();
 
     opts = opts || {}
     opts.texturePath = opts.texturePath || 'textures/';
@@ -49,6 +55,7 @@ var dockerworld = function (opts) {
     game.appendTo(opts.container);
 
     // Ugly hacks
+    global.Gworld = thisworld;
     global.Ggame = game;
     window._typeface_js = { faces: game.THREE.FontUtils.faces, loadFace: game.THREE.FontUtils.loadFace };
 
@@ -71,18 +78,66 @@ var dockerworld = function (opts) {
     artpacks.on('loadedAll', function () {
         player = new Player(thisworld);
 
+        listContainers();
 
-        var citem = new Container(thisworld, 'dhinchak_jagan');
-        containers["dhinchak_jagan"] = citem;
-    })
+    });
 
-    this.game = function() {
+    function listContainers() {
+        apiclient.listcontainers({}, function (success) {
+            var i;
+            for (i = 0; i < success.data.length; i++) {
+                console.log(success.data[i]);
+                addContainerToWorld(success.data[i].Names[0].substring(1));
+            }
+        }, function (error) {
+            console.log(error);
+        })
+    }
+
+    function addContainerToWorld(containername) {
+        var citem = new Container(thisworld, containername);
+        containernames[containername] = containers.push(citem) - 1; // Array.push returns length of array
+
+        if (nextcontainerposition.length === 1) {
+            nextcontainerposition[0] += 5;
+        } else {
+            nextcontainerposition.pop();
+        }
+
+    }
+
+    function removeContainerFromWorld(containername) {
+        var itemindex = containernames[containername];
+        var citem = containers[itemindex];
+
+        var destroyedpos = citem.Destroy();
+
+        if (itemindex === (containernames.length - 1)) {
+            nextcontainerposition[0] -= 5;
+        } else {
+            nextcontainerposition.push(destroyedpos);
+        }
+
+        containers.splice(itemindex, 1);
+        delete containernames[containername];
+    }
+
+    this.containerOrigin = [5, 0, -10];
+
+    this.getNextContainerPosition = function () {
+        return nextcontainerposition[nextcontainerposition.length - 1];
+    }
+
+    this.game = function () {
         return game;
     }
 
-    this.options = function() {
+    this.options = function () {
         return opts;
     }
+
+    this.addcontainer = addContainerToWorld;
+    this.removecontainer = removeContainerFromWorld;
 }
 
 // Initialize the world. Assume options have been placed in window.dockerworldoptions

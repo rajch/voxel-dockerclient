@@ -7,10 +7,11 @@ var dockercontainer = function (world, name) {
 
     var blockdata = game.plugins.get('voxel-blockdata');
 
-    var playerpos = [2, 2, 0];
-    var containerstartpos = [playerpos[0], 0, playerpos[2] - 10];
+    var playerpos = world.containerOrigin;
+    var containerstartpos = [world.getNextContainerPosition(), 2, playerpos[2]];
     var containerendpos = [containerstartpos[0] + CWIDTH, CHEIGHT, containerstartpos[2] + CDEPTH];
-
+    var bstartpos = [containerstartpos[0]-1, 2, containerstartpos[2]-1];
+    var bendpos = [containerendpos[0]+1, containerendpos[1] + 2, containerendpos[2]+1];
 
     // Draw the container shape
     game.blocks(containerstartpos, containerendpos, function (x, y, z, i) {
@@ -36,16 +37,27 @@ var dockercontainer = function (world, name) {
 
 
     var mesh = new T.Mesh(textGeometry, textMaterial);
-    mesh.position.set(containerstartpos[0], CHEIGHT*2, containerendpos[2]);
+    mesh.position.set(containerstartpos[0], CHEIGHT * 2, containerendpos[2]);
 
     var item = game.addItem({
         mesh: mesh,
         size: 3,
         height: 1,
         blockscreation: true,
-        velocity: { x: 0, y: 0, z: 0 }  
+        velocity: { x: 0, y: 0, z: 0 }
     })
 
+    this.Destroy = function () {
+        game.removeItem(item);
+        game.blocks(containerstartpos, containerendpos, function (x, y, z, i) {
+
+            game.setBlock([x, y, z], 0);
+
+            blockdata.set(x, y, z, undefined);
+        });
+
+        return containerstartpos[0]; // return the starting X position
+    }
 }
 
 module.exports = dockercontainer;

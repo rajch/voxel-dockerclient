@@ -12,14 +12,14 @@ app.use(morgan('dev'));
 app.use(express.static('public'));
 
 
-app.get('/containers/json', function(req, res){
-  docker.listContainers(function(err,containers){
+app.get('/containers/json', function (req, res) {
+  docker.listContainers({ all: req.query['all'] }, function (err, containers) {
     res.json(containers);
   });
 });
 
-app.get('/images/json', function(req, res){
-  docker.listImages(function(err,images){
+app.get('/images/json', function (req, res) {
+  docker.listImages(function (err, images) {
     res.json(images);
   });
 });

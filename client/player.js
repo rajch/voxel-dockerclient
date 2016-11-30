@@ -1,6 +1,8 @@
-var dockerplayer = function (game) {
+var dockerplayer = function (world) {
+  const game = world.game();
+  
   var voxelplayer = require('voxel-player')(game);
-  var player = voxelplayer('artpacks/player.png');
+  var player = voxelplayer('textures/player.png');
 
   player.pov('third');
   player.position.set(2, 2, 0);

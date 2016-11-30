@@ -1,17 +1,20 @@
 // voxel-plugins needs a require for all plugins, for browserify
 require('voxel-registry');
 require('voxel-blockdata');
-
+require('voxel-keys');
+require('voxel-console');
 
 var Player = require('./player');
 var Container = require('./container');
 var ApiClient = require('./apiclient');
+var GameConsole = require('./gameconsole');
 
 // The docker world
 var dockerworld = function (opts) {
     var thisworld = this;
     var game;
     var player;
+    var gameconsole;
 
     var containers = [];
     var containernames = {};
@@ -70,13 +73,20 @@ var dockerworld = function (opts) {
     var plugins = require('voxel-plugins')(game, { require: require });
     plugins.add('voxel-registry', {});
     plugins.add('voxel-blockdata', {});
+    plugins.add('voxel-keys', {});
+    plugins.add('voxel-console', {});
 
     plugins.loadAll();
 
     // Artpack-dependent things should be loaded 
     // after artpacks
     artpacks.on('loadedAll', function () {
+        
         player = new Player(thisworld);
+
+        gameconsole = new GameConsole(thisworld);
+
+        gameconsole.log('Welcome to Voxel-Dockerclient. Have fun.');
 
         listContainers();
 
@@ -86,15 +96,16 @@ var dockerworld = function (opts) {
         apiclient.listcontainers({}, function (success) {
             var i;
             for (i = 0; i < success.data.length; i++) {
-                console.log(success.data[i]);
+                //gameconsole.log(JSON.stringify(success.data[i]));
                 addContainerToWorld(success.data[i].Names[0].substring(1));
             }
         }, function (error) {
-            console.log(error);
+            gameconsole.log(error);
         })
     }
 
     function addContainerToWorld(containername) {
+        if(containernames[containername]) throw new Error('A container called ' + containername +' already exists.');
         var citem = new Container(thisworld, containername);
         containernames[containername] = containers.push(citem) - 1; // Array.push returns length of array
 
@@ -108,6 +119,7 @@ var dockerworld = function (opts) {
 
     function removeContainerFromWorld(containername) {
         var itemindex = containernames[containername];
+        if(!itemindex) throw new Error('There is no container called ' + containername +'.');
         var citem = containers[itemindex];
 
         var destroyedpos = citem.Destroy();

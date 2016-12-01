@@ -101,7 +101,7 @@ var dockerworld = function (opts) {
                 addContainerToWorld(success.data[i].Names[0].substring(1));
             }
         }, function (error) {
-            gameconsole.log(error);
+            this.log(error);
         })
     }
 
@@ -156,8 +156,16 @@ var dockerworld = function (opts) {
         return player;
     }
 
+    this.apiclient = function() {
+        return apiclient;
+    }
+
     this.options = function () {
         return opts;
+    }
+
+    this.log = function(text) {
+        gameconsole.log(text);
     }
 
     this.addcontainer = addContainerToWorld;

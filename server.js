@@ -24,8 +24,15 @@ app.get('/images/json', function (req, res) {
   });
 });
 
+app.get('/containers/:containername/json', function(req, res) {
+  var ct = docker.getContainer(req.params['containername']);
+  ct.inspect(function(err, inspectdata){
+    res.json(inspectdata);
+  });
+});
+
 
 // Listen on port 8080 by default
 app.listen(8080, function () {
   console.log('voxel-dockerclient listening on port 8080.')
-})
+});

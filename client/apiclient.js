@@ -16,6 +16,19 @@ function apiclient(baseurl) {
             errorhandler.call(axios, error);
         })
     }
+
+    this.inspectcontainer = function(name, opts, successhandler, errorhandler) {
+        opts = opts || {};
+
+        axios.get(
+            baseurl + '/containers/' + name + '/json',
+            { params: opts }
+        ).then(function(response){
+            successhandler.call(axios, response);
+        }).catch(function(error){
+            errorhandler.call(axios, error);
+        })
+    }
 }
 
 module.exports = apiclient;

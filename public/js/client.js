@@ -17,6 +17,19 @@ function apiclient(baseurl) {
             errorhandler.call(axios, error);
         })
     }
+
+    this.inspectcontainer = function(name, opts, successhandler, errorhandler) {
+        opts = opts || {};
+
+        axios.get(
+            baseurl + '/containers/' + name + '/json',
+            { params: opts }
+        ).then(function(response){
+            successhandler.call(axios, response);
+        }).catch(function(error){
+            errorhandler.call(axios, error);
+        })
+    }
 }
 
 module.exports = apiclient;
@@ -90,6 +103,7 @@ var dockercontainer = function (world, name) {
 module.exports = dockercontainer;
 },{}],3:[function(require,module,exports){
 var shellwords = require('shellwords');
+var ModalDialog = require('voxel-modal-dialog');
 
 var dockergameconsole = function (world) {
     const game = world.game();
@@ -101,7 +115,8 @@ var dockergameconsole = function (world) {
         "delete": deletecommand,
         "rm": deletecommand,
         "remove": deletecommand,
-        "go": gocommand
+        "go": gocommand,
+        "inspect": inspectcommand
     }
 
     voxelconsole.keys.down.on('openconsole', function () {
@@ -131,9 +146,9 @@ var dockergameconsole = function (world) {
     }
 
     function gocommand(arguments) {
-        if(arguments.length > 1) {
+        if (arguments.length > 1) {
             var arg = arguments[1];
-            switch(arguments[1]) {
+            switch (arguments[1]) {
                 case "home":
                     world.player().gohome();
                     break;
@@ -149,16 +164,34 @@ var dockergameconsole = function (world) {
         }
     }
 
+    function inspectcommand(arguments) {
+        if (arguments.length > 1) {
+            var container = world.getContainer(arguments[1]);
+            if (container) {
+                world.apiclient().inspectcontainer(arguments[1], {}, function (success) {
+                    var cinfo = document.createElement('div');
+                    cinfo.innerHTML = '<div style="width:300px;height:300px;overflow:scroll" >' + JSON.stringify(success.data ) + '</div>';
+                    var dialog = new ModalDialog(world.game(), { contents: [cinfo] });
+                    dialog.open();
+
+                }, function (error) {
+                    widget.log(error);
+                })
+            }
+        } else {
+            widget.log('Usage: inspect <containername>');
+        }
+    }
 
 
     function process(text) {
-        if(!text) return;
+        if (!text) return;
         widget.log(">" + text);
         widget.logNode(document.createElement('br'));
         try {
             var argv = shellwords.split(text);
-            var command =commands[argv[0]];
-            if(command) {
+            var command = commands[argv[0]];
+            if (command) {
                 command(argv);
             } else {
                 widget.log('I do not recognize the "' + argv[0] + '" command.')
@@ -178,7 +211,7 @@ var dockergameconsole = function (world) {
 
 module.exports = dockergameconsole;
 
-},{"shellwords":126}],4:[function(require,module,exports){
+},{"shellwords":126,"voxel-modal-dialog":168}],4:[function(require,module,exports){
 var dockerplayer = function(world) {
     const game = world.game();
 
@@ -234,7 +267,7 @@ var dockerplayer = function(world) {
 }
 
 module.exports = dockerplayer;
-},{"voxel-fly":163,"voxel-player":170,"voxel-walk":178}],5:[function(require,module,exports){
+},{"voxel-fly":163,"voxel-player":171,"voxel-walk":179}],5:[function(require,module,exports){
 (function (global){
 // voxel-plugins needs a require for all plugins, for browserify
 require('voxel-registry');
@@ -339,7 +372,7 @@ var dockerworld = function (opts) {
                 addContainerToWorld(success.data[i].Names[0].substring(1));
             }
         }, function (error) {
-            gameconsole.log(error);
+            this.log(error);
         })
     }
 
@@ -394,8 +427,16 @@ var dockerworld = function (opts) {
         return player;
     }
 
+    this.apiclient = function() {
+        return apiclient;
+    }
+
     this.options = function () {
         return opts;
+    }
+
+    this.log = function(text) {
+        gameconsole.log(text);
     }
 
     this.addcontainer = addContainerToWorld;
@@ -406,7 +447,7 @@ var dockerworld = function (opts) {
 var world = new dockerworld(window.dockerworldoptions);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./apiclient":1,"./container":2,"./gameconsole":3,"./player":4,"artpacks":7,"voxel-blockdata":156,"voxel-console":157,"voxel-engine":159,"voxel-keys":165,"voxel-plugins":172,"voxel-registry":175}],6:[function(require,module,exports){
+},{"./apiclient":1,"./container":2,"./gameconsole":3,"./player":4,"artpacks":7,"voxel-blockdata":156,"voxel-console":157,"voxel-engine":159,"voxel-keys":165,"voxel-plugins":173,"voxel-registry":176}],6:[function(require,module,exports){
 module.exports = AABB
 
 var vec3 = require('gl-matrix').vec3
@@ -986,7 +1027,7 @@ module.exports = (opts) => {
   return new ArtPacks(opts);
 }
 
-},{"binary-xhr":36,"events":76,"fs":51,"get-pixels":81,"graycolorize":84,"mcmeta":91,"path":109,"save-pixels":125,"zip":187}],8:[function(require,module,exports){
+},{"binary-xhr":36,"events":76,"fs":51,"get-pixels":81,"graycolorize":84,"mcmeta":91,"path":109,"save-pixels":125,"zip":188}],8:[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
 // THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
@@ -68860,7 +68901,7 @@ class Console extends Modal {
   }
 }
 
-},{"console-widget":65,"voxel-modal":168}],158:[function(require,module,exports){
+},{"console-widget":65,"voxel-modal":169}],158:[function(require,module,exports){
 module.exports = control
 
 var Stream = require('stream').Stream
@@ -69886,7 +69927,7 @@ Game.prototype.destroy = function() {
 }
 
 }).call(this,require('_process'))
-},{"./lib/detector":160,"./lib/stats":161,"_process":122,"aabb-3d":6,"collide-3d-tilemap":64,"events":76,"gl-matrix":83,"inherits":86,"interact":87,"kb-controls":90,"path":109,"pin-it":110,"raf":123,"spatial-events":127,"three":162,"tic":146,"voxel":180,"voxel-control":158,"voxel-mesh":167,"voxel-physical":169,"voxel-raycast":173,"voxel-region-change":174,"voxel-texture":176,"voxel-view":177}],160:[function(require,module,exports){
+},{"./lib/detector":160,"./lib/stats":161,"_process":122,"aabb-3d":6,"collide-3d-tilemap":64,"events":76,"gl-matrix":83,"inherits":86,"interact":87,"kb-controls":90,"path":109,"pin-it":110,"raf":123,"spatial-events":127,"three":162,"tic":146,"voxel":181,"voxel-control":158,"voxel-mesh":167,"voxel-physical":170,"voxel-raycast":174,"voxel-region-change":175,"voxel-texture":177,"voxel-view":178}],160:[function(require,module,exports){
 /**
  * @author alteredq / http://alteredqualia.com/
  * @author mr.doob / http://mrdoob.com/
@@ -106707,6 +106748,64 @@ Mesh.prototype.faceVertexUv = function(i) {
 ;
 
 },{"three":144}],168:[function(require,module,exports){
+'use strict';
+
+const Modal = require('voxel-modal');
+
+class ModalDialog extends Modal {
+  constructor(game, opts) {
+    super(game, ModalDialog.createDialogContent(opts));
+  }
+
+  static createDialogContent(opts) {
+    if (!opts.contents) opts.contents = [];
+
+    let box;
+
+    if (typeof document !== 'undefined') {
+      // covers the (almost) entire page, for alignment purposes
+      const aligner = document.createElement('div');
+      aligner.setAttribute('class', 'voxel-modal-dialog-aligner');
+      aligner.setAttribute('style', `
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 90%;
+        position: fixed;
+        pointer-events: none;
+        `)
+        // note: height not 100% to give some room for voxel-inventory-hotbar
+
+      // the overall dialog box element
+      box = document.createElement('div');
+      box.setAttribute('class', 'voxel-modal-dialog');
+      box.style.border = '6px outset gray';
+      box.style.visibility = 'hidden';
+      box.style.zIndex = 1;
+      box.style.pointerEvents = 'auto'; // reset pointer-events:none on parent (to allow clicks through canvas)
+      box.style.backgroundImage = 'linear-gradient(rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.5) 100%)';
+
+      for (let content of opts.contents) {
+        box.appendChild(content);
+      }
+
+      aligner.appendChild(box);
+      document.body.appendChild(aligner);
+    }
+
+    opts.element = box
+
+    return opts;
+  }
+}
+
+module.exports = ModalDialog
+
+
+},{"voxel-modal":169}],169:[function(require,module,exports){
 /*jshint globalstrict: true*/
 'use strict';
 
@@ -106815,7 +106914,7 @@ Modal.prototype.toggle = function() {
     this.open();
 };
 
-},{"ever":77}],169:[function(require,module,exports){
+},{"ever":77}],170:[function(require,module,exports){
 module.exports = physical
 
 var aabb = require('aabb-3d')
@@ -107034,7 +107133,7 @@ proto.atRestZ = function() {
   return this.resting.z
 }
 
-},{"aabb-3d":6,"three":144}],170:[function(require,module,exports){
+},{"aabb-3d":6,"three":144}],171:[function(require,module,exports){
 var skin = require('minecraft-skin');
 
 module.exports = function (game) {
@@ -107114,9 +107213,9 @@ function parseXYZ (x, y, z) {
     return { x: Number(x), y: Number(y), z: Number(z) };
 }
 
-},{"minecraft-skin":92}],171:[function(require,module,exports){
+},{"minecraft-skin":92}],172:[function(require,module,exports){
 arguments[4][52][0].apply(exports,arguments)
-},{"dup":52}],172:[function(require,module,exports){
+},{"dup":52}],173:[function(require,module,exports){
 (function (process){
 'use strict';
 var EventEmitter = require('events').EventEmitter;
@@ -107442,7 +107541,7 @@ Plugins.prototype.destroy = function(name) {
 };
 
 }).call(this,require('_process'))
-},{"_process":122,"events":76,"inherits":171,"tsort":149}],173:[function(require,module,exports){
+},{"_process":122,"events":76,"inherits":172,"tsort":149}],174:[function(require,module,exports){
 "use strict"
 
 function traceRay_impl(
@@ -107664,7 +107763,7 @@ function traceRay(voxels, origin, direction, max_d, hit_pos, hit_norm, EPSILON) 
 }
 
 module.exports = traceRay
-},{}],174:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 module.exports = coordinates
 
 var aabb = require('aabb-3d')
@@ -107692,7 +107791,7 @@ function coordinates(spatial, box, regionWidth) {
  
   return emitter
 }
-},{"aabb-3d":6,"events":76}],175:[function(require,module,exports){
+},{"aabb-3d":6,"events":76}],176:[function(require,module,exports){
 'use strict';
 
 module.exports = function(game, opts) {
@@ -107950,7 +108049,7 @@ Registry.prototype.getTextureURL = function(name) {
 
 
 
-},{}],176:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 var tic = require('tic')();
 var createAtlas = require('atlaspack');
 
@@ -108337,7 +108436,7 @@ function memoize(func) {
   return memoized;
 }
 
-},{"atlaspack":9,"tic":146}],177:[function(require,module,exports){
+},{"atlaspack":9,"tic":146}],178:[function(require,module,exports){
 (function (process){
 var THREE, temporaryPosition, temporaryVector
 
@@ -108427,7 +108526,7 @@ View.prototype.appendTo = function(element) {
   this.resizeWindow(this.width,this.height)
 }
 }).call(this,require('_process'))
-},{"_process":122}],178:[function(require,module,exports){
+},{"_process":122}],179:[function(require,module,exports){
 var walkSpeed = 1.0
 var startedWalking = 0.0
 var stoppedWalking = 0.0
@@ -108481,7 +108580,7 @@ exports.isWalking = function(){
 exports.setAcceleration = function(newA){
   acceleration = newA
 }
-},{}],179:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 var events = require('events')
 var inherits = require('inherits')
 
@@ -108618,7 +108717,7 @@ Chunker.prototype.voxelVector = function(pos) {
   return [vx, vy, vz]
 };
 
-},{"events":76,"inherits":86}],180:[function(require,module,exports){
+},{"events":76,"inherits":86}],181:[function(require,module,exports){
 var chunker = require('./chunker')
 
 module.exports = function(opts) {
@@ -108714,7 +108813,7 @@ module.exports.generateExamples = function() {
 }
 
 
-},{"./chunker":179,"./meshers/culled":181,"./meshers/greedy":182,"./meshers/monotone":183,"./meshers/stupid":184}],181:[function(require,module,exports){
+},{"./chunker":180,"./meshers/culled":182,"./meshers/greedy":183,"./meshers/monotone":184,"./meshers/stupid":185}],182:[function(require,module,exports){
 //Naive meshing (with face culling)
 function CulledMesh(volume, dims) {
   //Precalculate direction vectors for convenience
@@ -108766,7 +108865,7 @@ if(exports) {
   exports.mesher = CulledMesh;
 }
 
-},{}],182:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 var GreedyMesh = (function() {
 //Cache buffer internally
 var mask = new Int32Array(4096);
@@ -108883,7 +108982,7 @@ if(exports) {
   exports.mesher = GreedyMesh;
 }
 
-},{}],183:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 "use strict";
 
 var MonotoneMesh = (function(){
@@ -109136,7 +109235,7 @@ if(exports) {
   exports.mesher = MonotoneMesh;
 }
 
-},{}],184:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 //The stupidest possible way to generate a Minecraft mesh (I think)
 function StupidMesh(volume, dims) {
   var vertices = [], faces = [], x = [0,0,0], n = 0;
@@ -109172,7 +109271,7 @@ if(exports) {
   exports.mesher = StupidMesh;
 }
 
-},{}],185:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 
 var bops = require("bops");
 
@@ -109231,7 +109330,7 @@ function consolidate(buffers) {
 }
 
 
-},{"bops":37}],186:[function(require,module,exports){
+},{"bops":37}],187:[function(require,module,exports){
 /* Copyright (C) 1999 Masanao Izumo <iz@onicos.co.jp>
  * Version: 1.0.0.1
  * LastModified: Dec 25 1999
@@ -109987,7 +110086,7 @@ exports.inflate = function (input) {
 };
 
 
-},{"./buffer-io":185,"bops":37}],187:[function(require,module,exports){
+},{"./buffer-io":186,"bops":37}],188:[function(require,module,exports){
 (function (process){
 // Tom Robinson
 // Kris Kowal
@@ -110452,4 +110551,4 @@ var decodeDateTime = function (date, time) {
 
 
 }).call(this,require('_process'))
-},{"./inflate":186,"_process":122,"bops":37,"fs":51}]},{},[5]);
+},{"./inflate":187,"_process":122,"bops":37,"fs":51}]},{},[5]);

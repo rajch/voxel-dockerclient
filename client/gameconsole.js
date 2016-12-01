@@ -1,4 +1,5 @@
 var shellwords = require('shellwords');
+var ModalDialog = require('voxel-modal-dialog');
 
 var dockergameconsole = function (world) {
     const game = world.game();
@@ -10,7 +11,8 @@ var dockergameconsole = function (world) {
         "delete": deletecommand,
         "rm": deletecommand,
         "remove": deletecommand,
-        "go": gocommand
+        "go": gocommand,
+        "inspect": inspectcommand
     }
 
     voxelconsole.keys.down.on('openconsole', function () {
@@ -40,9 +42,9 @@ var dockergameconsole = function (world) {
     }
 
     function gocommand(arguments) {
-        if(arguments.length > 1) {
+        if (arguments.length > 1) {
             var arg = arguments[1];
-            switch(arguments[1]) {
+            switch (arguments[1]) {
                 case "home":
                     world.player().gohome();
                     break;
@@ -58,16 +60,34 @@ var dockergameconsole = function (world) {
         }
     }
 
+    function inspectcommand(arguments) {
+        if (arguments.length > 1) {
+            var container = world.getContainer(arguments[1]);
+            if (container) {
+                world.apiclient().inspectcontainer(arguments[1], {}, function (success) {
+                    var cinfo = document.createElement('div');
+                    cinfo.innerHTML = '<div style="width:300px;height:300px;overflow:scroll" >' + JSON.stringify(success.data ) + '</div>';
+                    var dialog = new ModalDialog(world.game(), { contents: [cinfo] });
+                    dialog.open();
+
+                }, function (error) {
+                    widget.log(error);
+                })
+            }
+        } else {
+            widget.log('Usage: inspect <containername>');
+        }
+    }
 
 
     function process(text) {
-        if(!text) return;
+        if (!text) return;
         widget.log(">" + text);
         widget.logNode(document.createElement('br'));
         try {
             var argv = shellwords.split(text);
-            var command =commands[argv[0]];
-            if(command) {
+            var command = commands[argv[0]];
+            if (command) {
                 command(argv);
             } else {
                 widget.log('I do not recognize the "' + argv[0] + '" command.')

@@ -36,6 +36,7 @@
     "voxel-engine": "git+https://github.com/rajch/voxel-engine.git",
     "voxel-fly": "^0.1.2",
     "voxel-keys": "git+https://github.com/rajch/voxel-keys.git",
+    "voxel-modal-dialog": "^1.0.1",
     "voxel-player": "^0.1.0",
     "voxel-plugins": "^0.5.0",
     "voxel-registry": "^0.8.3",

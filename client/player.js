@@ -33,6 +33,23 @@ var dockerplayer = function(world) {
     keys.down.on('pov', function() {
         player.toggle();
     });
+
+    this.gohome = function() {
+        player.moveTo(world.containerOrigin[0], 2, 0);
+    }
+
+    this.gotonextslot = function() {
+        player.moveTo(world.getNextContainerPosition(), 2, 0);
+    }
+
+    this.moveToContainer= function(name) {
+        var citem = world.getContainer(name);
+        if(citem) {
+            player.moveTo(citem.getPosition()[0]+2, 2, -5);
+        } else {
+            throw new Error('Could not find a container called "' + name + "'.");
+        }
+    } 
 }
 
 module.exports = dockerplayer;

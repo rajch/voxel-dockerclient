@@ -70,7 +70,7 @@ var dockercontainer = function (world, name) {
         velocity: { x: 0, y: 0, z: 0 }
     })
 
-    this.Destroy = function () {
+    this.destroy = function () {
         game.removeItem(item);
         game.blocks(containerstartpos, containerendpos, function (x, y, z, i) {
 
@@ -80,6 +80,10 @@ var dockercontainer = function (world, name) {
         });
 
         return containerstartpos[0]; // return the starting X position
+    }
+
+    this.getPosition = function() {
+        return containerstartpos;
     }
 }
 
@@ -94,7 +98,10 @@ var dockergameconsole = function (world) {
 
     var commands = {
         "create": createcommand,
-        "delete": deletecommand
+        "delete": deletecommand,
+        "rm": deletecommand,
+        "remove": deletecommand,
+        "go": gocommand
     }
 
     voxelconsole.keys.down.on('openconsole', function () {
@@ -104,29 +111,55 @@ var dockergameconsole = function (world) {
     widget.on('input', process);
 
     function createcommand(arguments) {
-        if (arguments.length > 0) {
-            world.addcontainer(arguments[0]);
+        if (arguments.length > 1) {
+            world.addcontainer(arguments[1]);
         } else {
             widget.log('Create what ?');
         }
     }
 
     function deletecommand(arguments) {
-        if (arguments.length > 0) {
-            world.removecontainer(arguments[0]);
+        if (arguments.length > 1) {
+            world.removecontainer(arguments[1]);
         } else {
             widget.log('Remove what ?');
         }
     }
 
+    function gotocontainer(name) {
+        world.player().moveToContainer(name);
+    }
+
+    function gocommand(arguments) {
+        if(arguments.length > 1) {
+            var arg = arguments[1];
+            switch(arguments[1]) {
+                case "home":
+                    world.player().gohome();
+                    break;
+                case "nextslot":
+                    world.player().gotonextslot();
+                    break;
+                default:
+                    gotocontainer(arg);
+                    break;
+            }
+        } else {
+            widget.log("Usage: go home or go nextslot or go <containername>")
+        }
+    }
+
+
 
     function process(text) {
         if(!text) return;
+        widget.log(">" + text);
+        widget.logNode(document.createElement('br'));
         try {
             var argv = shellwords.split(text);
             var command =commands[argv[0]];
             if(command) {
-                command(argv.slice(1));
+                command(argv);
             } else {
                 widget.log('I do not recognize the "' + argv[0] + '" command.')
             }
@@ -134,6 +167,7 @@ var dockergameconsole = function (world) {
         catch (err) {
             widget.log(err);
         }
+        widget.logNode(document.createElement('br'));
     }
 
     this.log = function (message) {
@@ -180,6 +214,23 @@ var dockerplayer = function(world) {
     keys.down.on('pov', function() {
         player.toggle();
     });
+
+    this.gohome = function() {
+        player.moveTo(world.containerOrigin[0], 2, 0);
+    }
+
+    this.gotonextslot = function() {
+        player.moveTo(world.getNextContainerPosition(), 2, 0);
+    }
+
+    this.moveToContainer= function(name) {
+        var citem = world.getContainer(name);
+        if(citem) {
+            player.moveTo(citem.getPosition()[0]+2, 2, -5);
+        } else {
+            throw new Error('Could not find a container called "' + name + "'.");
+        }
+    } 
 }
 
 module.exports = dockerplayer;
@@ -310,7 +361,7 @@ var dockerworld = function (opts) {
         if(!itemindex) throw new Error('There is no container called ' + containername +'.');
         var citem = containers[itemindex];
 
-        var destroyedpos = citem.Destroy();
+        var destroyedpos = citem.destroy();
 
         if (itemindex === (containernames.length - 1)) {
             nextcontainerposition[0] -= 5;
@@ -328,8 +379,19 @@ var dockerworld = function (opts) {
         return nextcontainerposition[nextcontainerposition.length - 1];
     }
 
+    this.getContainer = function(name) {
+        var itemindex = containernames[name];
+        return itemindex !== undefined ?
+                containers[itemindex] :
+                itemindex;
+    }
+
     this.game = function () {
         return game;
+    }
+
+    this.player = function() {
+        return player;
     }
 
     this.options = function () {

@@ -47,7 +47,7 @@ var dockercontainer = function (world, name) {
         velocity: { x: 0, y: 0, z: 0 }
     })
 
-    this.Destroy = function () {
+    this.destroy = function () {
         game.removeItem(item);
         game.blocks(containerstartpos, containerendpos, function (x, y, z, i) {
 
@@ -57,6 +57,10 @@ var dockercontainer = function (world, name) {
         });
 
         return containerstartpos[0]; // return the starting X position
+    }
+
+    this.getPosition = function() {
+        return containerstartpos;
     }
 }
 

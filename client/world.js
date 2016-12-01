@@ -123,7 +123,7 @@ var dockerworld = function (opts) {
         if(!itemindex) throw new Error('There is no container called ' + containername +'.');
         var citem = containers[itemindex];
 
-        var destroyedpos = citem.Destroy();
+        var destroyedpos = citem.destroy();
 
         if (itemindex === (containernames.length - 1)) {
             nextcontainerposition[0] -= 5;
@@ -141,8 +141,19 @@ var dockerworld = function (opts) {
         return nextcontainerposition[nextcontainerposition.length - 1];
     }
 
+    this.getContainer = function(name) {
+        var itemindex = containernames[name];
+        return itemindex !== undefined ?
+                containers[itemindex] :
+                itemindex;
+    }
+
     this.game = function () {
         return game;
+    }
+
+    this.player = function() {
+        return player;
     }
 
     this.options = function () {

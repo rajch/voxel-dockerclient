@@ -40,6 +40,7 @@ var dockerworld = function (opts) {
         , '<control>': 'alt'
         , '`': 'openconsole'
         , 'I': 'inventory'
+        , 'R': 'pov'
     };
     opts.container = opts.container || document.body;
     opts.artpackpath = opts.artpackpath || 'artpacks/artpack.zip';

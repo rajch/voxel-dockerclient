@@ -145,55 +145,45 @@ var dockergameconsole = function (world) {
 module.exports = dockergameconsole;
 
 },{"shellwords":126}],4:[function(require,module,exports){
-var dockerplayer = function (world) {
-  const game = world.game();
-  
-  var voxelplayer = require('voxel-player')(game);
-  var player = voxelplayer('textures/player.png');
+var dockerplayer = function(world) {
+    const game = world.game();
 
-  player.pov('third');
-  player.position.set(2, 2, 0);
-  player.possess();
+    var voxelplayer = require('voxel-player')(game);
+    var player = voxelplayer('textures/player.png');
 
-
-  /*
-  var voxelfly = require('voxel-fly')(game);
-  voxelfly(player);
-  */
-
-  var walker = require('voxel-walk');
-
-  game.on('tick', function () {
-    walker.render(player.playerSkin);
-    var vx = Math.abs(player.velocity.x);
-    var vz = Math.abs(player.velocity.z);
-    if (vx > 0.001 || vz > 0.001) {
-      walker.stopWalking();
-    } else {
-      walker.startWalking();
-    }
-  });
-
-  /*
-  var registry = game.plugins.get('voxel-registry');
-  registry.registerItem('debian', { itemTexture: 'i/diamond', displayName: 'debian:latest' });
-  registry.registerItem('httpd', { itemTexture: 'i/diamond', displayName: 'httpd:latest' });
-
-  var inventory = game.plugins.get('voxel-carry').inventory;
-  inventory.give(new ItemPile("debian", 4));
-  inventory.give(new ItemPile("httpd", 6));
+    player.pov('third');
+    player.position.set(2, 2, 0);
+    player.possess();
 
 
-  var keys = game.plugins.get('voxel-keys');
-  var inventorydialog = new InventoryDialog(game, {});
-  keys.down.on('inventory', function () {
-    inventorydialog.open();
-  })
-  */
+
+    var voxelfly = require('voxel-fly')(game);
+    var flyer = voxelfly(player);
+
+
+    var walker = require('voxel-walk');
+
+    game.on('tick', function() {
+        if (!flyer.flying) {
+            walker.render(player.playerSkin);
+            var vx = Math.abs(player.velocity.x);
+            var vz = Math.abs(player.velocity.z);
+            if (vx > 0.001 || vz > 0.001) {
+                walker.stopWalking();
+            } else {
+                walker.startWalking();
+            }
+        }
+    });
+
+    var keys = game.plugins.get('voxel-keys');
+    keys.down.on('pov', function() {
+        player.toggle();
+    });
 }
 
 module.exports = dockerplayer;
-},{"voxel-player":168,"voxel-walk":176}],5:[function(require,module,exports){
+},{"voxel-fly":163,"voxel-player":170,"voxel-walk":178}],5:[function(require,module,exports){
 (function (global){
 // voxel-plugins needs a require for all plugins, for browserify
 require('voxel-registry');
@@ -237,6 +227,7 @@ var dockerworld = function (opts) {
         , '<control>': 'alt'
         , '`': 'openconsole'
         , 'I': 'inventory'
+        , 'R': 'pov'
     };
     opts.container = opts.container || document.body;
     opts.artpackpath = opts.artpackpath || 'artpacks/artpack.zip';
@@ -353,7 +344,7 @@ var dockerworld = function (opts) {
 var world = new dockerworld(window.dockerworldoptions);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./apiclient":1,"./container":2,"./gameconsole":3,"./player":4,"artpacks":7,"voxel-blockdata":156,"voxel-console":157,"voxel-engine":159,"voxel-keys":163,"voxel-plugins":170,"voxel-registry":173}],6:[function(require,module,exports){
+},{"./apiclient":1,"./container":2,"./gameconsole":3,"./player":4,"artpacks":7,"voxel-blockdata":156,"voxel-console":157,"voxel-engine":159,"voxel-keys":165,"voxel-plugins":172,"voxel-registry":175}],6:[function(require,module,exports){
 module.exports = AABB
 
 var vec3 = require('gl-matrix').vec3
@@ -933,7 +924,7 @@ module.exports = (opts) => {
   return new ArtPacks(opts);
 }
 
-},{"binary-xhr":36,"events":76,"fs":51,"get-pixels":81,"graycolorize":84,"mcmeta":91,"path":109,"save-pixels":125,"zip":185}],8:[function(require,module,exports){
+},{"binary-xhr":36,"events":76,"fs":51,"get-pixels":81,"graycolorize":84,"mcmeta":91,"path":109,"save-pixels":125,"zip":187}],8:[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
 // THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
@@ -68807,7 +68798,7 @@ class Console extends Modal {
   }
 }
 
-},{"console-widget":65,"voxel-modal":166}],158:[function(require,module,exports){
+},{"console-widget":65,"voxel-modal":168}],158:[function(require,module,exports){
 module.exports = control
 
 var Stream = require('stream').Stream
@@ -69833,7 +69824,7 @@ Game.prototype.destroy = function() {
 }
 
 }).call(this,require('_process'))
-},{"./lib/detector":160,"./lib/stats":161,"_process":122,"aabb-3d":6,"collide-3d-tilemap":64,"events":76,"gl-matrix":83,"inherits":86,"interact":87,"kb-controls":90,"path":109,"pin-it":110,"raf":123,"spatial-events":127,"three":162,"tic":146,"voxel":178,"voxel-control":158,"voxel-mesh":165,"voxel-physical":167,"voxel-raycast":171,"voxel-region-change":172,"voxel-texture":174,"voxel-view":175}],160:[function(require,module,exports){
+},{"./lib/detector":160,"./lib/stats":161,"_process":122,"aabb-3d":6,"collide-3d-tilemap":64,"events":76,"gl-matrix":83,"inherits":86,"interact":87,"kb-controls":90,"path":109,"pin-it":110,"raf":123,"spatial-events":127,"three":162,"tic":146,"voxel":180,"voxel-control":158,"voxel-mesh":167,"voxel-physical":169,"voxel-raycast":173,"voxel-region-change":174,"voxel-texture":176,"voxel-view":177}],160:[function(require,module,exports){
 /**
  * @author alteredq / http://alteredqualia.com/
  * @author mr.doob / http://mrdoob.com/
@@ -106075,6 +106066,228 @@ if (typeof exports !== 'undefined') {
 
 }).call(this,require('_process'))
 },{"_process":122}],163:[function(require,module,exports){
+var ever = require('ever')
+var vkey = require('vkey')
+var events = require('events')
+
+var game
+
+module.exports = function(gameInstance) {
+  // cache the game instance
+  game = gameInstance
+  return function makeFly(physical, noKeyEvents) {
+    return new Fly(physical, noKeyEvents)
+  }
+}
+
+function Fly(physical, noKeyEvents) {
+  this.flySpeed = 0.8
+  this.physical = physical
+  if (!noKeyEvents) this.bindKeyEvents()
+}
+
+Fly.prototype.bindKeyEvents = function(el) {
+  if (!el) el = document.body
+  var self = this
+  var counter = 0
+  var spaceUpAfterFirstDown = false
+  var first = Date.now()
+  ever(el)
+    .on('keydown', onKeyDown)
+    .on('keyup', onKeyUp)
+  
+  function onKeyDown(ev) {
+    var key = vkey[ev.keyCode] || ev.char
+    var binding = game.keybindings[key]
+    if (binding !== "jump") return
+    if (counter === 1) {
+      if (Date.now() - first > 300) {
+        spaceUpAfterFirstDown = false
+        return first = Date.now()
+      } else {
+        if (!self.flying && spaceUpAfterFirstDown) {
+          self.startFlying()
+        }
+      }
+      spaceUpAfterFirstDown = false
+      return counter = 0
+    }
+    if (counter === 0) {
+      first = Date.now()
+      counter += 1
+    }
+  }
+  
+  function onKeyUp(ev) {
+    var key = vkey[ev.keyCode] || ev.char
+    if (key === '<space>' && counter === 1) {
+      spaceUpAfterFirstDown = true
+    }
+  }
+}
+
+Fly.prototype.startFlying = function() {
+  var self = this
+  this.flying = true
+  var physical = this.physical
+  physical.removeForce(game.gravity)
+  physical.onGameTick = function(dt) {
+    if (physical.atRestY() === -1) return self.stopFlying()
+    physical.friction.x = self.flySpeed
+    physical.friction.z = self.flySpeed
+    var press = game.controls.state
+    if (press['crouch']) return physical.velocity.y = -0.01
+    if (press['jump']) return physical.velocity.y = 0.01
+    physical.velocity.y = 0
+  }
+  game.on('tick', physical.onGameTick)
+}
+
+Fly.prototype.stopFlying = function() {
+  this.flying = false
+  var physical = this.physical
+  physical.subjectTo(game.gravity)
+  game.removeListener('tick', physical.onGameTick)
+}
+},{"events":76,"ever":77,"vkey":164}],164:[function(require,module,exports){
+var ua = typeof window !== 'undefined' ? window.navigator.userAgent : ''
+  , isOSX = /OS X/.test(ua)
+  , isOpera = /Opera/.test(ua)
+  , maybeFirefox = !/like Gecko/.test(ua) && !isOpera
+
+var i, output = module.exports = {
+  0:  isOSX ? '<menu>' : '<UNK>'
+, 1:  '<mouse 1>'
+, 2:  '<mouse 2>'
+, 3:  '<break>'
+, 4:  '<mouse 3>'
+, 5:  '<mouse 4>'
+, 6:  '<mouse 5>'
+, 8:  '<backspace>'
+, 9:  '<tab>'
+, 12: '<clear>'
+, 13: '<enter>'
+, 16: '<shift>'
+, 17: '<control>'
+, 18: '<alt>'
+, 19: '<pause>'
+, 20: '<caps-lock>'
+, 21: '<ime-hangul>'
+, 23: '<ime-junja>'
+, 24: '<ime-final>'
+, 25: '<ime-kanji>'
+, 27: '<escape>'
+, 28: '<ime-convert>'
+, 29: '<ime-nonconvert>'
+, 30: '<ime-accept>'
+, 31: '<ime-mode-change>'
+, 27: '<escape>'
+, 32: '<space>'
+, 33: '<page-up>'
+, 34: '<page-down>'
+, 35: '<end>'
+, 36: '<home>'
+, 37: '<left>'
+, 38: '<up>'
+, 39: '<right>'
+, 40: '<down>'
+, 41: '<select>'
+, 42: '<print>'
+, 43: '<execute>'
+, 44: '<snapshot>'
+, 45: '<insert>'
+, 46: '<delete>'
+, 47: '<help>'
+, 91: '<meta>'  // meta-left -- no one handles left and right properly, so we coerce into one.
+, 92: '<meta>'  // meta-right
+, 93: isOSX ? '<meta>' : '<menu>'      // chrome,opera,safari all report this for meta-right (osx mbp).
+, 95: '<sleep>'
+, 106: '<num-*>'
+, 107: '<num-+>'
+, 108: '<num-enter>'
+, 109: '<num-->'
+, 110: '<num-.>'
+, 111: '<num-/>'
+, 144: '<num-lock>'
+, 145: '<scroll-lock>'
+, 160: '<shift-left>'
+, 161: '<shift-right>'
+, 162: '<control-left>'
+, 163: '<control-right>'
+, 164: '<alt-left>'
+, 165: '<alt-right>'
+, 166: '<browser-back>'
+, 167: '<browser-forward>'
+, 168: '<browser-refresh>'
+, 169: '<browser-stop>'
+, 170: '<browser-search>'
+, 171: '<browser-favorites>'
+, 172: '<browser-home>'
+
+  // ff/osx reports '<volume-mute>' for '-'
+, 173: isOSX && maybeFirefox ? '-' : '<volume-mute>'
+, 174: '<volume-down>'
+, 175: '<volume-up>'
+, 176: '<next-track>'
+, 177: '<prev-track>'
+, 178: '<stop>'
+, 179: '<play-pause>'
+, 180: '<launch-mail>'
+, 181: '<launch-media-select>'
+, 182: '<launch-app 1>'
+, 183: '<launch-app 2>'
+, 186: ';'
+, 187: '='
+, 188: ','
+, 189: '-'
+, 190: '.'
+, 191: '/'
+, 192: '`'
+, 219: '['
+, 220: '\\'
+, 221: ']'
+, 222: "'"
+, 223: '<meta>'
+, 224: '<meta>'       // firefox reports meta here.
+, 226: '<alt-gr>'
+, 229: '<ime-process>'
+, 231: isOpera ? '`' : '<unicode>'
+, 246: '<attention>'
+, 247: '<crsel>'
+, 248: '<exsel>'
+, 249: '<erase-eof>'
+, 250: '<play>'
+, 251: '<zoom>'
+, 252: '<no-name>'
+, 253: '<pa-1>'
+, 254: '<clear>'
+}
+
+for(i = 58; i < 65; ++i) {
+  output[i] = String.fromCharCode(i)
+}
+
+// 0-9
+for(i = 48; i < 58; ++i) {
+  output[i] = (i - 48)+''
+}
+
+// A-Z
+for(i = 65; i < 91; ++i) {
+  output[i] = String.fromCharCode(i)
+}
+
+// num0-9
+for(i = 96; i < 107; ++i) {
+  output[i] = '<num-'+(i - 96)+'>'
+}
+
+// F1-F24
+for(i = 112; i < 136; ++i) {
+  output[i] = 'F'+(i-111)
+}
+
+},{}],165:[function(require,module,exports){
 'use strict';
 
 var vkey = require('vkey');
@@ -106259,9 +106472,9 @@ KeysPlugin.prototype.keyUp = function(ev) {
 };
 
 
-},{"events":76,"inherits":164,"toarray":148,"vkey":155}],164:[function(require,module,exports){
+},{"events":76,"inherits":166,"toarray":148,"vkey":155}],166:[function(require,module,exports){
 arguments[4][52][0].apply(exports,arguments)
-},{"dup":52}],165:[function(require,module,exports){
+},{"dup":52}],167:[function(require,module,exports){
 var THREE = require('three')
 
 module.exports = function(data, mesher, scaleFactor, three) {
@@ -106431,7 +106644,7 @@ Mesh.prototype.faceVertexUv = function(i) {
 }
 ;
 
-},{"three":144}],166:[function(require,module,exports){
+},{"three":144}],168:[function(require,module,exports){
 /*jshint globalstrict: true*/
 'use strict';
 
@@ -106540,7 +106753,7 @@ Modal.prototype.toggle = function() {
     this.open();
 };
 
-},{"ever":77}],167:[function(require,module,exports){
+},{"ever":77}],169:[function(require,module,exports){
 module.exports = physical
 
 var aabb = require('aabb-3d')
@@ -106759,7 +106972,7 @@ proto.atRestZ = function() {
   return this.resting.z
 }
 
-},{"aabb-3d":6,"three":144}],168:[function(require,module,exports){
+},{"aabb-3d":6,"three":144}],170:[function(require,module,exports){
 var skin = require('minecraft-skin');
 
 module.exports = function (game) {
@@ -106839,9 +107052,9 @@ function parseXYZ (x, y, z) {
     return { x: Number(x), y: Number(y), z: Number(z) };
 }
 
-},{"minecraft-skin":92}],169:[function(require,module,exports){
+},{"minecraft-skin":92}],171:[function(require,module,exports){
 arguments[4][52][0].apply(exports,arguments)
-},{"dup":52}],170:[function(require,module,exports){
+},{"dup":52}],172:[function(require,module,exports){
 (function (process){
 'use strict';
 var EventEmitter = require('events').EventEmitter;
@@ -107167,7 +107380,7 @@ Plugins.prototype.destroy = function(name) {
 };
 
 }).call(this,require('_process'))
-},{"_process":122,"events":76,"inherits":169,"tsort":149}],171:[function(require,module,exports){
+},{"_process":122,"events":76,"inherits":171,"tsort":149}],173:[function(require,module,exports){
 "use strict"
 
 function traceRay_impl(
@@ -107389,7 +107602,7 @@ function traceRay(voxels, origin, direction, max_d, hit_pos, hit_norm, EPSILON) 
 }
 
 module.exports = traceRay
-},{}],172:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 module.exports = coordinates
 
 var aabb = require('aabb-3d')
@@ -107417,7 +107630,7 @@ function coordinates(spatial, box, regionWidth) {
  
   return emitter
 }
-},{"aabb-3d":6,"events":76}],173:[function(require,module,exports){
+},{"aabb-3d":6,"events":76}],175:[function(require,module,exports){
 'use strict';
 
 module.exports = function(game, opts) {
@@ -107675,7 +107888,7 @@ Registry.prototype.getTextureURL = function(name) {
 
 
 
-},{}],174:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 var tic = require('tic')();
 var createAtlas = require('atlaspack');
 
@@ -108062,7 +108275,7 @@ function memoize(func) {
   return memoized;
 }
 
-},{"atlaspack":9,"tic":146}],175:[function(require,module,exports){
+},{"atlaspack":9,"tic":146}],177:[function(require,module,exports){
 (function (process){
 var THREE, temporaryPosition, temporaryVector
 
@@ -108152,7 +108365,7 @@ View.prototype.appendTo = function(element) {
   this.resizeWindow(this.width,this.height)
 }
 }).call(this,require('_process'))
-},{"_process":122}],176:[function(require,module,exports){
+},{"_process":122}],178:[function(require,module,exports){
 var walkSpeed = 1.0
 var startedWalking = 0.0
 var stoppedWalking = 0.0
@@ -108206,7 +108419,7 @@ exports.isWalking = function(){
 exports.setAcceleration = function(newA){
   acceleration = newA
 }
-},{}],177:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 var events = require('events')
 var inherits = require('inherits')
 
@@ -108343,7 +108556,7 @@ Chunker.prototype.voxelVector = function(pos) {
   return [vx, vy, vz]
 };
 
-},{"events":76,"inherits":86}],178:[function(require,module,exports){
+},{"events":76,"inherits":86}],180:[function(require,module,exports){
 var chunker = require('./chunker')
 
 module.exports = function(opts) {
@@ -108439,7 +108652,7 @@ module.exports.generateExamples = function() {
 }
 
 
-},{"./chunker":177,"./meshers/culled":179,"./meshers/greedy":180,"./meshers/monotone":181,"./meshers/stupid":182}],179:[function(require,module,exports){
+},{"./chunker":179,"./meshers/culled":181,"./meshers/greedy":182,"./meshers/monotone":183,"./meshers/stupid":184}],181:[function(require,module,exports){
 //Naive meshing (with face culling)
 function CulledMesh(volume, dims) {
   //Precalculate direction vectors for convenience
@@ -108491,7 +108704,7 @@ if(exports) {
   exports.mesher = CulledMesh;
 }
 
-},{}],180:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 var GreedyMesh = (function() {
 //Cache buffer internally
 var mask = new Int32Array(4096);
@@ -108608,7 +108821,7 @@ if(exports) {
   exports.mesher = GreedyMesh;
 }
 
-},{}],181:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 "use strict";
 
 var MonotoneMesh = (function(){
@@ -108861,7 +109074,7 @@ if(exports) {
   exports.mesher = MonotoneMesh;
 }
 
-},{}],182:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 //The stupidest possible way to generate a Minecraft mesh (I think)
 function StupidMesh(volume, dims) {
   var vertices = [], faces = [], x = [0,0,0], n = 0;
@@ -108897,7 +109110,7 @@ if(exports) {
   exports.mesher = StupidMesh;
 }
 
-},{}],183:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 
 var bops = require("bops");
 
@@ -108956,7 +109169,7 @@ function consolidate(buffers) {
 }
 
 
-},{"bops":37}],184:[function(require,module,exports){
+},{"bops":37}],186:[function(require,module,exports){
 /* Copyright (C) 1999 Masanao Izumo <iz@onicos.co.jp>
  * Version: 1.0.0.1
  * LastModified: Dec 25 1999
@@ -109712,7 +109925,7 @@ exports.inflate = function (input) {
 };
 
 
-},{"./buffer-io":183,"bops":37}],185:[function(require,module,exports){
+},{"./buffer-io":185,"bops":37}],187:[function(require,module,exports){
 (function (process){
 // Tom Robinson
 // Kris Kowal
@@ -110177,4 +110390,4 @@ var decodeDateTime = function (date, time) {
 
 
 }).call(this,require('_process'))
-},{"./inflate":184,"_process":122,"bops":37,"fs":51}]},{},[5]);
+},{"./inflate":186,"_process":122,"bops":37,"fs":51}]},{},[5]);

@@ -34,6 +34,7 @@
     "voxel-blockdata": "^0.2.1",
     "voxel-console": "^1.0.1",
     "voxel-engine": "git+https://github.com/rajch/voxel-engine.git",
+    "voxel-fly": "^0.1.2",
     "voxel-keys": "git+https://github.com/rajch/voxel-keys.git",
     "voxel-player": "^0.1.0",
     "voxel-plugins": "^0.5.0",

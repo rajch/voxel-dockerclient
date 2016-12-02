@@ -8,6 +8,7 @@ var Player = require('./player');
 var Container = require('./container');
 var ApiClient = require('./apiclient');
 var GameConsole = require('./gameconsole');
+var Dialog = require('./dialog');
 
 // The docker world
 var dockerworld = function (opts) {
@@ -15,6 +16,7 @@ var dockerworld = function (opts) {
     var game;
     var player;
     var gameconsole;
+    var dialog;
 
     var containers = [];
     var containernames = {};
@@ -84,20 +86,24 @@ var dockerworld = function (opts) {
     artpacks.on('loadedAll', function () {
         
         player = new Player(thisworld);
+        dialog = new Dialog(thisworld);
 
         gameconsole = new GameConsole(thisworld);
 
-        gameconsole.log('Welcome to Voxel-Dockerclient. Have fun.');
+        var keys = plugins.get('voxel-keys');
+        keys.down.on('inventory', function(){
+            gameconsole.doCommand('inspect');
+        })
 
         listContainers();
 
+        //gameconsole.log('Welcome to Voxel-Dockerclient. Have fun.');
     });
 
     function listContainers() {
         apiclient.listcontainers({}, function (success) {
             var i;
             for (i = 0; i < success.data.length; i++) {
-                //gameconsole.log(JSON.stringify(success.data[i]));
                 addContainerToWorld(success.data[i].Names[0].substring(1));
             }
         }, function (error) {
@@ -154,6 +160,10 @@ var dockerworld = function (opts) {
 
     this.player = function() {
         return player;
+    }
+
+    this.dialog = function() {
+        return dialog;
     }
 
     this.apiclient = function() {

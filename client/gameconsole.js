@@ -1,9 +1,9 @@
 var shellwords = require('shellwords');
-var ModalDialog = require('voxel-modal-dialog');
 
 var dockergameconsole = function (world) {
     const game = world.game();
     var voxelconsole = game.plugins.get('voxel-console');
+    var blockdata = game.plugins.get('voxel-blockdata');
     var widget = voxelconsole.widget;
 
     var commands = {
@@ -12,7 +12,8 @@ var dockergameconsole = function (world) {
         "rm": deletecommand,
         "remove": deletecommand,
         "go": gocommand,
-        "inspect": inspectcommand
+        "inspect": inspectcommand,
+        "t": testcommand
     }
 
     voxelconsole.keys.down.on('openconsole', function () {
@@ -60,23 +61,42 @@ var dockergameconsole = function (world) {
         }
     }
 
+    function doinspectcommand(arg) {
+        world.apiclient().inspectcontainer(arg, {}, function (success) {
+            var dialog = world.dialog();
+            dialog.html(JSON.stringify(success.data));
+            dialog.open();
+
+        }, function (error) {
+            widget.log(error);
+        })
+    }
+
     function inspectcommand(arguments) {
         if (arguments.length > 1) {
             var container = world.getContainer(arguments[1]);
             if (container) {
-                world.apiclient().inspectcontainer(arguments[1], {}, function (success) {
-                    var cinfo = document.createElement('div');
-                    cinfo.innerHTML = '<div style="width:300px;height:300px;overflow:scroll" >' + JSON.stringify(success.data ) + '</div>';
-                    var dialog = new ModalDialog(world.game(), { contents: [cinfo] });
-                    dialog.open();
-
-                }, function (error) {
-                    widget.log(error);
-                })
+                doinspectcommand(arguments[1]);
             }
         } else {
-            widget.log('Usage: inspect <containername>');
+            var cn = world.player().getAdjacentContainerName();
+            if(cn) {
+                doinspectcommand(cn);
+            } else {
+                widget.log('Either stand in front of a container or use: inspect <containername>');
+            }
         }
+    }
+
+    function testcommand(arguments) {
+        var camvec = world.game().cameraVector().map(function (cv) { return Math.round(cv) });
+        var ppos = world.player().getPosition();
+        var cpos = ppos.map(function (cv, index) { return cv + camvec[index]; });
+        widget.log('Testing :' +
+            ' Camera: ' + camvec +
+            ' Player:' + ppos +
+            ' Probe:' + cpos +
+            ' Container:' + blockdata.get(cpos[0], cpos[1], cpos[2]));
     }
 
 
@@ -86,7 +106,7 @@ var dockergameconsole = function (world) {
         widget.logNode(document.createElement('br'));
         try {
             var argv = shellwords.split(text);
-            var command = commands[argv[0]];
+            var command = commands[argv[0].toLowerCase()];
             if (command) {
                 command(argv);
             } else {
@@ -102,6 +122,8 @@ var dockergameconsole = function (world) {
     this.log = function (message) {
         widget.log(message);
     }
+
+    this.doCommand = process;
 
 }
 

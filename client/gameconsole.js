@@ -13,6 +13,7 @@ var dockergameconsole = function (world) {
         "remove": deletecommand,
         "go": gocommand,
         "inspect": inspectcommand,
+        "start": startcommand,
         "t": testcommand
     }
 
@@ -73,14 +74,16 @@ var dockergameconsole = function (world) {
     }
 
     function inspectcommand(arguments) {
+        var container;
         if (arguments.length > 1) {
-            var container = world.getContainer(arguments[1]);
+            container = world.getContainer(arguments[1]);
             if (container) {
-                doinspectcommand(arguments[1]);
+                doinspectcommand(container);
             }
         } else {
             var cn = world.player().getAdjacentContainerName();
-            if(cn) {
+            if (cn) {
+                container = world.getContainer(cn);
                 doinspectcommand(cn);
             } else {
                 widget.log('Either stand in front of a container or use: inspect <containername>');
@@ -88,17 +91,34 @@ var dockergameconsole = function (world) {
         }
     }
 
-    function testcommand(arguments) {
-        var camvec = world.game().cameraVector().map(function (cv) { return Math.round(cv) });
-        var ppos = world.player().getPosition();
-        var cpos = ppos.map(function (cv, index) { return cv + camvec[index]; });
-        widget.log('Testing :' +
-            ' Camera: ' + camvec +
-            ' Player:' + ppos +
-            ' Probe:' + cpos +
-            ' Container:' + blockdata.get(cpos[0], cpos[1], cpos[2]));
+    function dostartcommand(container) {
+        container.start(
+            function (successdata) {
+                widget.log(container.getState());
+            },
+            function (errordata) {
+                widget.log("Error:" + errordata.response.statusText);
+            }
+        )
     }
 
+    function startcommand(arguments) {
+        var cn = arguments[1] || world.player().getAdjacentContainerName();
+        if (cn) {
+            dostartcommand(world.getContainer(cn));
+        } else {
+            widget.log('Either stand in front of a container or use: start <containername>');
+        }
+    }
+
+    function testcommand(arguments) {
+        var cn = arguments[1] || world.player().getAdjacentContainerName();
+        if (cn) {
+            dostartcommand(world.getContainer(cn));
+        } else {
+            widget.log('Either stand in front of a container or use: start <containername>');
+        }
+    }
 
     function process(text) {
         if (!text) return;

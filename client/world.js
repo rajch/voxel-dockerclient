@@ -44,7 +44,8 @@ var dockerworld = function (opts) {
         , 'I': 'inventory'
         , 'R': 'pov'
     };
-    opts.container = opts.container || document.body;
+    opts.parentElement = opts.parentElement || document.body;
+    opts.statsDisabled = opts.statsDisabled || true;
     opts.artpackpath = opts.artpackpath || 'artpacks/artpack.zip';
     opts.materials = [['grass', 'dirt', 'grass_dirt'], 'brick', 'dirt', 'plank']
 
@@ -53,12 +54,14 @@ var dockerworld = function (opts) {
         texturePath: opts.texturePath,
         keybindings: opts.keybindings,
         materials: opts.materials,
+        container: opts.parentElement,
+        statsDisabled: opts.statsDisabled,
         generate: function (x, y, z) {
             return y == 1 ? 1 : 0;
         }
     });
 
-    game.appendTo(opts.container);
+    game.appendTo(opts.parentElement);
 
     // Ugly hacks
     global.Gworld = thisworld;
@@ -97,23 +100,23 @@ var dockerworld = function (opts) {
 
         listContainers();
 
-        //gameconsole.log('Welcome to Voxel-Dockerclient. Have fun.');
+        gameconsole.log('Welcome to Voxel-Dockerclient. Have fun.');
     });
 
     function listContainers() {
         apiclient.listcontainers({}, function (success) {
             var i;
             for (i = 0; i < success.data.length; i++) {
-                addContainerToWorld(success.data[i].Names[0].substring(1));
+                addContainerToWorld(success.data[i].Names[0].substring(1), success.data[i]);
             }
         }, function (error) {
             this.log(error);
         })
     }
 
-    function addContainerToWorld(containername) {
+    function addContainerToWorld(containername, dockerdata) {
         if(containernames[containername]) throw new Error('A container called ' + containername +' already exists.');
-        var citem = new Container(thisworld, containername);
+        var citem = new Container(thisworld, containername, dockerdata);
         containernames[containername] = containers.push(citem) - 1; // Array.push returns length of array
 
         if (nextcontainerposition.length === 1) {

@@ -15,6 +15,13 @@ function dockerdialog(world) {
             box.innerHTML = args;
         }
 
+        var parentElement = world.options().parentElement;
+        var width = parentElement.clientWidth * 0.8;
+        var height = parentElement.clientHeight * 0.8;
+
+        box.style.width = width + "px";
+        box.style.height = height + "px";
+
         dialog.open();
     }
 

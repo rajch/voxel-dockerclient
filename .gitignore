@@ -40,3 +40,13 @@ jspm_packages
 jsconfig.json
 typings.json
 typings
+
+# tern javascript intelligence
+.tern-port
+.tern-project
+
+# CodeLite IDE
+*.workspace
+.codelite
+
+

@@ -13,7 +13,7 @@ var Dialog = require('./dialog');
 /** The voxel-dockerclient world
  *  @constructor
  *  @params {object} [opts] - World options.
- * 
+ *
  */
 var dockerworld = function(opts) {
     var thisworld = this;
@@ -45,15 +45,15 @@ var dockerworld = function(opts) {
         '<shift>' : 'crouch',
         '<control>' : 'alt',
         '`' : 'openconsole',
-        'I' : 'inventory',
+        'I' : 'inspect',
         'R' : 'pov'
     };
     opts.parentElement = opts.parentElement || document.body;
     opts.statsDisabled = opts.statsDisabled || true;
     opts.artpackpath = opts.artpackpath || 'artpacks/artpack.zip';
-    opts.materials = [ [ 'grass', 'dirt', 'grass_dirt' ], 'brick', 'dirt', 'plank' ]
+    opts.materials = [ [ 'grass', 'dirt', 'grass_dirt' ], 'brick', 'dirt', 'plank' ];
 
-        var voxelengine = require('voxel-engine');
+    var voxelengine = require('voxel-engine');
     game = voxelengine({
         texturePath : opts.texturePath,
         keybindings : opts.keybindings,
@@ -96,9 +96,9 @@ var dockerworld = function(opts) {
         gameconsole = new GameConsole(thisworld);
 
         var keys = plugins.get('voxel-keys');
-        keys.down.on('inventory', function() { gameconsole.doCommand('inspect'); })
+        keys.down.on('inspect', function() { gameconsole.doCommand('inspect', true); });
 
-            listContainers();
+        listContainers();
 
         gameconsole.log('Welcome to Voxel-Dockerclient. Have fun.');
     });
@@ -112,7 +112,7 @@ var dockerworld = function(opts) {
                                          addContainerToWorld(success.data[i].Names[0].substring(1), success.data[i]);
                                      }
                                  },
-                                 function(error) { this.log(error); })
+                                 function(error) { this.log(error); });
     }
 
     function addContainerToWorld(containername, dockerdata)

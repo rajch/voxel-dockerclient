@@ -71,7 +71,7 @@ var dockercontainer = function(world, name, dockerdata) {
             if((x === containerstartpos[0] || x === containerendpos[0] - 1) &&
                    (z === containerstartpos[2] || z === containerendpos[2] - 1) ||
                y == 4) {
-                game.setBlock([ x, y, z ], 3);
+                game.setBlock([ x, y, z ], 'dirt');
             } else {
                 if(state !== CONTAINERSTATE.running) {
                     game.setBlock([ x, y, z ], 'plank');

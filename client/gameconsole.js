@@ -14,6 +14,7 @@ var dockergameconsole = function (world) {
         "go": gocommand,
         "inspect": inspectcommand,
         "start": startcommand,
+        "stop": stopcommand,
         "t": testcommand
     }
 
@@ -111,6 +112,26 @@ var dockergameconsole = function (world) {
         }
     }
 
+    function dostopcommand(container) {
+        container.stop(
+            function (successdata) {
+                widget.log(container.getState());
+            },
+            function (errordata) {
+                widget.log("Error:" + errordata.response.statusText);
+            }
+        )
+    }
+
+    function stopcommand(arguments) {
+        var cn = arguments[1] || world.player().getAdjacentContainerName();
+        if (cn) {
+            dostopcommand(world.getContainer(cn));
+        } else {
+            widget.log('Either stand in front of a container or use: stop <containername>');
+        }
+    }
+    
     function testcommand(arguments) {
         var cn = arguments[1] || world.player().getAdjacentContainerName();
         if (cn) {

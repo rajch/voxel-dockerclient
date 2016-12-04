@@ -1,48 +1,51 @@
 var axios = require('axios');
 
-function apiclient(baseurl) {
+function apiclient(baseurl)
+{
     baseurl = baseurl ? baseurl : '';
 
-    this.listcontainers = function (opts, successhandler, errorhandler) {
-        opts = opts || { all: 1 };
+    function get(url, opts, successHandler, errorHandler)
+    {
+        opts = opts || {};
+
+        axios.get(baseurl + url, { params : opts }).then(function(response) {
+            successHandler.call(axios, response);
+        }).catch(function(error) { errorHandler.call(axios, error); })
+    }
+
+    function post(url, opts, successHandler, errorHandler)
+    {
+        opts = opts || {};
+
+        axios.post(baseurl + url, { params : opts }).then(function(response) {
+            successHandler.call(axios, response);
+        }).catch(function(error) { errorHandler.call(axios, error); })
+    }
+
+    this.listcontainers = function(opts, successHandler, errorHandler) {
+        opts = opts || { all : 1 };
         opts.all = opts.all || 1;
 
-        axios.get(
-            baseurl + '/containers/json',
-            { params: opts }
-        ).then(function (response) {
-            successhandler.call(axios, response);
-        }).catch(function (error) {
-            errorhandler.call(axios, error);
-        })
-    }
+        get('/containers/json', opts, successHandler, errorHandler);
+    };
 
-    this.inspectcontainer = function (name, opts, successhandler, errorhandler) {
+    this.inspectcontainer = function(name, opts, successHandler, errorHandler) {
         opts = opts || {};
 
-        axios.get(
-            baseurl + '/containers/' + name + '/json',
-            { params: opts }
-        ).then(function (response) {
-            successhandler.call(axios, response);
-        }).catch(function (error) {
-            errorhandler.call(axios, error);
-        })
-    }
+        get('/containers/' + name + '/json', opts, successHandler, errorHandler);
+    };
 
-    this.startcontainer = function (name, opts, successhandler, errorhandler) {
+    this.startcontainer = function(name, opts, successHandler, errorHandler) {
         opts = opts || {};
 
-        axios.post(
-            baseurl + '/containers/' + name + '/start',
-            { params: opts }
-        ).then(function (response) {
-            successhandler.call(axios, response);
-        }).catch(function (error) {
-            errorhandler.call(axios, error);
-        })
+        post('/containers/' + name + '/start', opts, successHandler, errorHandler);
+    };
 
-    }
+    this.stopcontainer = function(name, opts, successHandler, errorHandler) {
+        opts = opts || {};
+
+        post('/containers/' + name + '/stop', opts, successHandler, errorHandler);
+    };
 }
 
 module.exports = apiclient;

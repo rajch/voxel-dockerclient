@@ -11,38 +11,40 @@ app.use(morgan('dev'));
 // Read static files from public subdirectory
 app.use(express.static('public'));
 
+app.get('/containers/json', function(req, res) {
+    docker.listContainers({ all : req.query['all'] }, function(err, containers) { res.json(containers); });
+});
 
-app.get('/containers/json', function (req, res) {
-  docker.listContainers({ all: req.query['all'] }, function (err, containers) {
-    res.json(containers);
-  });
-})
+app.get('/images/json', function(req, res) { docker.listImages(function(err, images) { res.json(images); }); });
 
-app.get('/images/json', function (req, res) {
-  docker.listImages(function (err, images) {
-    res.json(images);
-  });
-})
+app.get('/containers/:containername/json', function(req, res) {
+    var ct = docker.getContainer(req.params['containername']);
+    ct.inspect(function(err, inspectdata) { res.json(inspectdata); });
+});
 
-app.get('/containers/:containername/json', function (req, res) {
-  var ct = docker.getContainer(req.params['containername']);
-  ct.inspect(function (err, inspectdata) {
-    res.json(inspectdata);
-  });
-})
+app.post('/containers/:containername/start', function(req, res) {
+    debugger;
+    var ct = docker.getContainer(req.params['containername']);
+    ct.start(function(err, startdata) {
+        if(err) {
+            res.end(res.writeHead(err.statusCode, err.reason))
+        } else {
+            res.json(startdata);
+        }
+    });
+});
 
-app.post('/containers/:containername/start', function (req, res) {
-  var ct = docker.getContainer(req.params['containername']);
-  ct.start(function (err, startdata) {
-    if (err) {
-      res.end(res.writeHead(err.statusCode, err.reason))
-    } else {
-      res.json(startdata);
-    }
-  });
-})
+app.post('/containers/:containername/stop', function(req, res) {
+    debugger;
+    var ct = docker.getContainer(req.params['containername']);
+    ct.stop(function(err, startdata) {
+        if(err) {
+            res.end(res.writeHead(err.statusCode, err.reason))
+        } else {
+            res.json(startdata);
+        }
+    });
+});
 
 // Listen on port 8080 by default
-app.listen(8080, function () {
-  console.log('voxel-dockerclient listening on port 8080.')
-})
+app.listen(8080, function(){ console.log('voxel-dockerclient listening on port 8080.') })

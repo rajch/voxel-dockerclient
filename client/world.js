@@ -5,7 +5,8 @@ require('voxel-keys');
 require('voxel-console');
 
 var Player = require('./player');
-var Container = require('./container');
+// var Container = require('./container');
+var ContainerCollection = require('./containercollection');
 var ApiClient = require('./apiclient');
 var GameConsole = require('./gameconsole');
 var Dialog = require('./dialog');
@@ -16,162 +17,127 @@ var Dialog = require('./dialog');
  *
  */
 var dockerworld = function(opts) {
-    var thisworld = this;
-    var game;
-    var player;
-    var gameconsole;
-    var dialog;
+  var thisworld = this;
+  var game;
+  var player;
+  var gameconsole;
+  var dialog;
 
-    var containers = [];
-    var containernames = {};
-    var nextcontainerposition = [5];
+  var cc = new ContainerCollection(thisworld);
 
-    var apiclient = new ApiClient();
+  var apiclient = new ApiClient();
 
-    opts = opts || {};
-    opts.texturePath = opts.texturePath || 'textures/';
-    opts.keybindings = opts.keybindings || {
-        'W' : 'forward',
-        'A' : 'left',
-        'S' : 'backward',
-        'D' : 'right',
-        '<up>' : 'forward',
-        '<left>' : 'left',
-        '<down>' : 'backward',
-        '<right>' : 'right',
-        '<mouse 1>' : 'fire',
-        '<mouse 3>' : 'firealt',
-        '<space>' : 'jump',
-        '<shift>' : 'crouch',
-        '<control>' : 'alt',
-        '`' : 'openconsole',
-        'I' : 'inspect',
-        'R' : 'pov'
-    };
-    opts.parentElement = opts.parentElement || document.body;
-    opts.statsDisabled = opts.statsDisabled || true;
-    opts.artpackpath = opts.artpackpath || 'artpacks/artpack.zip';
-    opts.materials = [ [ 'grass', 'dirt', 'grass_dirt' ], 'brick', 'dirt', 'plank' ];
+  opts = opts || {};
+  opts.texturePath = opts.texturePath || 'textures/';
+  opts.keybindings = opts.keybindings || {
+    'W' : 'forward',
+    'A' : 'left',
+    'S' : 'backward',
+    'D' : 'right',
+    '<up>' : 'forward',
+    '<left>' : 'left',
+    '<down>' : 'backward',
+    '<right>' : 'right',
+    '<mouse 1>' : 'fire',
+    '<mouse 3>' : 'firealt',
+    '<space>' : 'jump',
+    '<shift>' : 'crouch',
+    '<control>' : 'alt',
+    '`' : 'openconsole',
+    'I' : 'inspect',
+    'R' : 'pov'
+  };
+  opts.parentElement = opts.parentElement || document.body;
+  opts.container = opts.parentElement;
+  opts.statsDisabled = opts.statsDisabled || true;
+  opts.artpackpath = opts.artpackpath || 'artpacks/artpack.zip';
+  opts.materials = [ [ 'grass', 'dirt', 'grass_dirt' ], 'brick', 'dirt', 'plank' ];
+  opts.generateChunks = true;
+  opts.generate = function flatLand(x, y, z) { return y == 1 ? 1 : 0; };
+  opts.startingPosition = [0, 2, 0];
 
-    var voxelengine = require('voxel-engine');
-    game = voxelengine({
-        texturePath : opts.texturePath,
-        keybindings : opts.keybindings,
-        materials : opts.materials,
-        container : opts.parentElement,
-        statsDisabled : opts.statsDisabled,
-        generate : function(x, y, z) { return y == 1 ? 1 : 0; }
-    });
+  var voxelengine = require('voxel-engine');
+  game = voxelengine(opts);
 
-    game.appendTo(opts.parentElement);
+  game.appendTo(opts.parentElement);
 
-    // Ugly hacks
-    global.Gworld = thisworld;
-    global.Ggame = game;
-    window._typeface_js = { faces : game.THREE.FontUtils.faces, loadFace : game.THREE.FontUtils.loadFace };
+  // Handle container drawing when chunks are loaded/unloaded
+  game.voxels.on('missingChunk', function onWorldMissingChunk(chunkposition) { cc.drawContainers(chunkposition); });
 
-    // Load art pack, required for inventory etc.
-    var createArtpacks = require('artpacks');
-    var artpacks = createArtpacks([opts.artpackpath]);
-    game.materials.artPacks = artpacks;
+  // Ugly hacks
+  global.Gworld = thisworld;
+  global.Ggame = game;
+  window._typeface_js = { faces : game.THREE.FontUtils.faces, loadFace : game.THREE.FontUtils.loadFace };
 
-    // Add plugins
-    //      voxel-registry, used variously
-    //      voxel-blockdata, for storing metadata for actions
-    var plugins = require('voxel-plugins')(game, { require : require });
-    plugins.add('voxel-registry', {});
-    plugins.add('voxel-blockdata', {});
-    plugins.add('voxel-keys', {});
-    plugins.add('voxel-console', {});
+  // Load art pack, required for inventory etc.
+  var createArtpacks = require('artpacks');
+  var artpacks = createArtpacks([opts.artpackpath]);
+  game.materials.artPacks = artpacks;
 
-    plugins.loadAll();
+  // Add plugins
+  //      voxel-registry, used variously
+  //      voxel-blockdata, for storing metadata for actions
+  var plugins = require('voxel-plugins')(game, { require : require });
+  plugins.add('voxel-registry', {});
+  plugins.add('voxel-blockdata', {});
+  plugins.add('voxel-keys', {});
+  plugins.add('voxel-console', {});
 
-    // Artpack-dependent things should be loaded
-    // after artpacks
-    artpacks.on('loadedAll', function() {
+  plugins.loadAll();
 
-        player = new Player(thisworld);
-        dialog = new Dialog(thisworld);
+  // Artpack-dependent things should be loaded
+  // after artpacks
+  artpacks.on('loadedAll', function() {
 
-        gameconsole = new GameConsole(thisworld);
+    player = new Player(thisworld);
+    dialog = new Dialog(thisworld);
 
-        var keys = plugins.get('voxel-keys');
-        keys.down.on('inspect', function() { gameconsole.doCommand('inspect', true); });
+    gameconsole = new GameConsole(thisworld);
 
-        listContainers();
+    var keys = plugins.get('voxel-keys');
+    keys.down.on('inspect', function() { gameconsole.doCommand('inspect', true); });
 
-        gameconsole.log('Welcome to Voxel-Dockerclient. Have fun.');
-    });
+    listContainers();
 
-    function listContainers()
-    {
-        apiclient.listcontainers({},
-                                 function(success) {
-                                     var i;
-                                     for(i = 0; i < success.data.length; i++) {
-                                         addContainerToWorld(success.data[i].Names[0].substring(1), success.data[i]);
-                                     }
-                                 },
-                                 function(error) { this.log(error); });
-    }
+    gameconsole.log('Welcome to Voxel-Dockerclient. Have fun.');
 
-    function addContainerToWorld(containername, dockerdata)
-    {
-        if(containernames[containername])
-            throw new Error('A container called ' + containername + ' already exists.');
-        var citem = new Container(thisworld, containername, dockerdata);
+  });
 
-        containernames[containername] = containers.push(citem) - 1; // Array.push returns length of array
+  function listContainers()
+  {
+    apiclient.listcontainers({},
+                             function(success) {
+                               var i;
+                               for(i = 0; i < success.data.length; i++) {
+                                 cc.add(success.data[i].Names[0].substring(1), success.data[i]);
+                               }
+                               cc.drawContainers([ 0, 0, -1 ]);
+                               cc.drawContainers([ 1, 0, -1 ]);
+                             },
+                             function(error) { this.log(error); });
+  }
 
-        if(nextcontainerposition.length === 1) {
-            nextcontainerposition[0] += 5;
-        } else {
-            nextcontainerposition.pop();
-        }
-    }
+  // this.containerOrigin = CONTAINERORIGIN;
 
-    function removeContainerFromWorld(containername)
-    {
-        var itemindex = containernames[containername];
-        if(!itemindex)
-            throw new Error('There is no container called ' + containername + '.');
-        var citem = containers[itemindex];
+  this.getNextContainerPosition = cc.getNextContainerPosition;
 
-        var destroyedpos = citem.destroy();
+  this.getContainer = cc.getContainer;
 
-        if(itemindex === (containernames.length - 1)) {
-            nextcontainerposition[0] -= 5;
-        } else {
-            nextcontainerposition.push(destroyedpos);
-        }
+  this.game = function() { return game; };
 
-        containers.splice(itemindex, 1);
-        delete containernames[containername];
-    }
+  this.player = function() { return player; };
 
-    this.containerOrigin = [ 5, 0, -10 ];
+  this.dialog = function() { return dialog; };
 
-    this.getNextContainerPosition = function() { return nextcontainerposition[nextcontainerposition.length - 1]; };
+  this.apiclient = function() { return apiclient; };
 
-    this.getContainer = function(name) {
-        var itemindex = containernames[name];
-        return itemindex !== undefined ? containers[itemindex] : itemindex;
-    };
+  this.options = function() { return opts; };
 
-    this.game = function() { return game; };
+  this.log = function(text) { gameconsole.log(text); };
 
-    this.player = function() { return player; };
+  this.addcontainer = cc.add;
+  this.removecontainer = cc.remove;
 
-    this.dialog = function() { return dialog; };
-
-    this.apiclient = function() { return apiclient; };
-
-    this.options = function() { return opts; };
-
-    this.log = function(text) { gameconsole.log(text); };
-
-    this.addcontainer = addContainerToWorld;
-    this.removecontainer = removeContainerFromWorld;
 };
 
 module.exports = dockerworld;

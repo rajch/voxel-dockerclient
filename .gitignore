@@ -49,4 +49,5 @@ typings
 *.workspace
 .codelite
 
-
+# public/js/client.js (it gets built)
+public/js/client.js

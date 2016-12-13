@@ -5,7 +5,6 @@ require('voxel-keys');
 require('voxel-console');
 
 var Player = require('./player');
-// var Container = require('./container');
 var ContainerCollection = require('./containercollection');
 var ApiClient = require('./apiclient');
 var GameConsole = require('./gameconsole');
@@ -134,6 +133,8 @@ var dockerworld = function(opts) {
   this.options = function() { return opts; };
 
   this.log = function(text) { gameconsole.log(text); };
+  
+  this.containers = cc;
 
   this.addcontainer = cc.add;
   this.removecontainer = cc.remove;

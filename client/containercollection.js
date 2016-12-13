@@ -77,10 +77,14 @@ var Container = function(world, name, dockerdata, startXposition) {
       var mesh = new T.Mesh(textGeometry, textMaterial);
       mesh.position.set(containerstartpos[0], CONTAINERORIGIN[1] + CHEIGHT + 0.15, containerendpos[2]);
 
-      containertitle = game.addItem(
-          { mesh : mesh, size : 3, height : 1, blockscreation : true /*, velocity : { x : 0, y : 0, z : 0 } */ });
-          
-      //containertitle.subjectTo([0, 0, 0]);
+      containertitle = game.addItem({
+        mesh : mesh,
+        size : 3,
+        height : 1,
+        blockscreation : true /*, velocity : { x : 0, y : 0, z : 0 } */
+      });
+
+      // containertitle.subjectTo([0, 0, 0]);
     }
   }
 
@@ -142,6 +146,10 @@ var Container = function(world, name, dockerdata, startXposition) {
                          },
                          function(error) { errorCallback.call(this, error); });
   };
+  
+  this.name = function() {
+    return name;
+  }
 };
 
 /** A collection of containers as represented in voxel-dockerclient
@@ -229,6 +237,18 @@ var dockercontainercollection = function(world) {
     }
   }
 
+  function getContainerAtPosition(pos)
+  {
+    var retval;
+    if(pos[1] >= CONTAINERORIGIN[1] && pos[1] < CONTAINERORIGIN[1] + CHEIGHT && pos[2] >= CONTAINERORIGIN[2] - CDEPTH &&
+       pos[2] <= CONTAINERORIGIN[2] ) {
+      var containerindex = getContainerOrdinalFromX(pos[0]);
+      if(containerindex >= 0)
+        retval = containers[containerindex];
+    }
+    return retval;
+  }
+
   /** Add a container to the world
    *  @method
    *  @param {string} containername
@@ -266,6 +286,8 @@ var dockercontainercollection = function(world) {
     var itemindex = containernames[name];
     return itemindex !== undefined ? containers[itemindex] : itemindex;
   };
+  
+  this.getContainerAtPosition = getContainerAtPosition;
 };
 
 module.exports = dockercontainercollection;

@@ -35,6 +35,18 @@ function apiclient(baseurl)
     get('/containers/' + name + '/json', opts, successHandler, errorHandler);
   };
 
+  this.topcontainer = function(name, opts, successHandler, errorHandler) {
+    opts = opts || {};
+
+    get('/containers/' + name + '/top', opts, successHandler, errorHandler);
+  };
+
+  this.logscontainer = function(name, opts, successHandler, errorHandler) {
+    opts = opts || {};
+
+    get('/containers/' + name + '/logs', opts, successHandler, errorHandler);
+  };
+
   this.startcontainer = function(name, opts, successHandler, errorHandler) {
     opts = opts || {};
 

@@ -16,6 +16,8 @@ var dockergameconsole = function(world) {
     "inspect" : inspectcommand,
     "start" : startcommand,
     "stop" : stopcommand,
+    "top" : topcommand,
+    "logs" : logscommand,
     "t" : testcommand
   };
 
@@ -103,9 +105,52 @@ var dockergameconsole = function(world) {
   {
     if(errordata && errordata.response && errordata.response.statusText) {
       widget.log("Error:" + errordata.response.statusText);
-
     } else {
       widget.log("Error:" + errordata);
+    }
+  }
+
+  function dotopcommand(container)
+  {
+    container.top(
+        function(success) {
+          var dialog = world.dialog();
+          dialog.html('<h1>Processes running in ' + container.name() + '</h2><div>' + JSON.stringify(success.data) + '</div>');
+          dialog.open();
+
+        },
+        onstartstopError);
+  }
+
+  function topcommand(arguments)
+  {
+    var cn = arguments[1] || world.player().getAdjacentContainerName();
+    if(cn) {
+      dotopcommand(world.containers.getContainer(cn));
+    } else {
+      widget.log('Either stand in front of a container or use: top <containername>');
+    }
+  }
+
+  function dologscommand(container)
+  {
+    container.logs(
+        function(success) {
+          var dialog = world.dialog();
+          dialog.html('<h1>Logs of ' + container.name() + '</h2><div>' + JSON.stringify(success.data) + '</div>');
+          dialog.open();
+
+        },
+        onstartstopError);
+  }
+
+  function logscommand(arguments)
+  {
+    var cn = arguments[1] || world.player().getAdjacentContainerName();
+    if(cn) {
+      dologscommand(world.containers.getContainer(cn));
+    } else {
+      widget.log('Either stand in front of a container or use: logs <containername>');
     }
   }
 
@@ -118,7 +163,8 @@ var dockergameconsole = function(world) {
   {
     var cn = arguments[1] || world.player().getAdjacentContainerName();
     if(cn) {
-      dostartcommand(world.getContainer(cn));
+      widget.log('Starting ' + cn);
+      dostartcommand(world.containers.getContainer(cn));
     } else {
       widget.log('Either stand in front of a container or use: start <containername>');
     }
@@ -133,7 +179,7 @@ var dockergameconsole = function(world) {
   {
     var cn = arguments[1] || world.player().getAdjacentContainerName();
     if(cn) {
-      dostopcommand(world.getContainer(cn));
+      dostopcommand(world.containers.getContainer(cn));
     } else {
       widget.log('Either stand in front of a container or use: stop <containername>');
     }
@@ -143,7 +189,7 @@ var dockergameconsole = function(world) {
   {
     var cn = arguments[1] || world.player().getAdjacentContainerName();
     if(cn) {
-      dostartcommand(world.getContainer(cn));
+      dostartcommand(world.containers.getContainer(cn));
     } else {
       widget.log('Either stand in front of a container or use: start <containername>');
     }

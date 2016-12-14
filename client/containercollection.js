@@ -125,6 +125,20 @@ var Container = function(world, name, dockerdata, startXposition) {
                             function(error) { errorCallback.call(this, error); })
   };
 
+  this.top = function(successCallback, errorCallback) {
+    client.topcontainer(name,
+                        {},
+                        function(success) { successCallback.call(this, success); },
+                        function(error) { errorCallback.call(this, error); })
+  };
+
+  this.logs = function(successCallback, errorCallback) {
+    client.logscontainer(name,
+                        {},
+                        function(success) { successCallback.call(this, success); },
+                        function(error) { errorCallback.call(this, error); })
+  };
+
   this.start = function(successCallback, errorCallback) {
     client.startcontainer(name,
                           {},
@@ -146,10 +160,8 @@ var Container = function(world, name, dockerdata, startXposition) {
                          },
                          function(error) { errorCallback.call(this, error); });
   };
-  
-  this.name = function() {
-    return name;
-  }
+
+  this.name = function() { return name; }
 };
 
 /** A collection of containers as represented in voxel-dockerclient
@@ -241,7 +253,7 @@ var dockercontainercollection = function(world) {
   {
     var retval;
     if(pos[1] >= CONTAINERORIGIN[1] && pos[1] < CONTAINERORIGIN[1] + CHEIGHT && pos[2] >= CONTAINERORIGIN[2] - CDEPTH &&
-       pos[2] <= CONTAINERORIGIN[2] ) {
+       pos[2] <= CONTAINERORIGIN[2]) {
       var containerindex = getContainerOrdinalFromX(pos[0]);
       if(containerindex >= 0)
         retval = containers[containerindex];
@@ -286,7 +298,7 @@ var dockercontainercollection = function(world) {
     var itemindex = containernames[name];
     return itemindex !== undefined ? containers[itemindex] : itemindex;
   };
-  
+
   this.getContainerAtPosition = getContainerAtPosition;
 };
 

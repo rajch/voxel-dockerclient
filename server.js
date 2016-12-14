@@ -11,39 +11,49 @@ app.use(morgan('dev'));
 // Read static files from public subdirectory
 app.use(express.static('public'));
 
-app.get('/containers/json', function(req, res) {
-    docker.listContainers({ all : req.query['all'] }, function(err, containers) { res.json(containers); });
+function handleResponse(req, res)
+{
+  return function(err, result) {
+    if(err) {
+      res.end(res.writeHead(err.statusCode, err.reason));
+    } else {
+      res.json(result);
+    }
+  };
+}
+
+// docker ps
+app.get('/containers/json',
+        function(req, res) { docker.listContainers({ all : req.query['all'] }, handleResponse(req, res)); });
+
+app.get('/images/json', function(req, res){ docker.listImages(handleResponse(req, res)) });
+
+// docker inspect
+app.get('/containers/:containername/json', function(req, res) {
+  var ct = docker.getContainer(req.params['containername']);
+  ct.inspect(handleResponse(req, res));
 });
 
-app.get('/images/json', function(req, res) { docker.listImages(function(err, images) { res.json(images); }); });
+// docker top
+app.get('/containers/:containername/top', function(req, res) {
+  var ct = docker.getContainer(req.params['containername']);
+  ct.top(handleResponse(req, res));
+});
 
-app.get('/containers/:containername/json', function(req, res) {
-    var ct = docker.getContainer(req.params['containername']);
-    ct.inspect(function(err, inspectdata) { res.json(inspectdata); });
+// docker logs
+app.get('/containers/:containername/logs', function(req, res) {
+  var ct = docker.getContainer(req.params['containername']);
+  ct.logs({ stdout:true, stderr:false, follow:false}, handleResponse(req, res));
 });
 
 app.post('/containers/:containername/start', function(req, res) {
-    debugger;
-    var ct = docker.getContainer(req.params['containername']);
-    ct.start(function(err, startdata) {
-        if(err) {
-            res.end(res.writeHead(err.statusCode, err.reason))
-        } else {
-            res.json(startdata);
-        }
-    });
+  var ct = docker.getContainer(req.params['containername']);
+  ct.start(handleResponse(req, res));
 });
 
 app.post('/containers/:containername/stop', function(req, res) {
-    debugger;
-    var ct = docker.getContainer(req.params['containername']);
-    ct.stop(function(err, startdata) {
-        if(err) {
-            res.end(res.writeHead(err.statusCode, err.reason))
-        } else {
-            res.json(startdata);
-        }
-    });
+  var ct = docker.getContainer(req.params['containername']);
+  ct.stop(handleResponse(req, res));
 });
 
 // Listen on port 8080 by default

@@ -53,7 +53,7 @@ var dockerworld = function(opts) {
   opts.materials = [ [ 'grass', 'dirt', 'grass_dirt' ], 'brick', 'dirt', 'plank' ];
   opts.generateChunks = true;
   opts.generate = function flatLand(x, y, z) { return y == 1 ? 1 : 0; };
-  opts.startingPosition = [0, 2, 0];
+  opts.startingPosition = [ 0, 2, 0 ];
 
   var voxelengine = require('voxel-engine');
   game = voxelengine(opts);
@@ -133,7 +133,7 @@ var dockerworld = function(opts) {
   this.options = function() { return opts; };
 
   this.log = function(text) { gameconsole.log(text); };
-  
+
   this.containers = cc;
 
   this.addcontainer = cc.add;

@@ -72,7 +72,7 @@ var dockergameconsole = function(world) {
                                        {},
                                        function(success) {
                                          var dialog = world.dialog();
-                                         dialog.html('<h1>Inspecting ' + arg + '</h2><div>' +
+                                         dialog.html('<h1>Inspecting ' + arg.name() + '</h2><div>' +
                                                      JSON.stringify(success.data) + '</div>');
                                          dialog.open();
 

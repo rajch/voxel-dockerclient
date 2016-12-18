@@ -25,7 +25,42 @@ var dockergameconsole = function(world) {
 
   widget.on('input', process);
 
-  function createcommand(arguments)
+  function createcommand(arg)
+  {
+    world.apiclient().listimages(
+        {},
+        function(success) {
+          var dialog = world.dialog();
+          dialog.iframe('createdialog.html', { "message" : 'init', data : success.data }, onCreateDialogMessage);
+          dialog.open();
+
+        },
+        function(error) { widget.log(error); });
+  }
+
+  function onCreateDialogMessage(event)
+  {
+    var dialog = world.dialog();
+    if(event.data.message === 'cancel') {
+      dialog.close();
+    } else if(event.data.message === 'create') {
+      var createparams = event.data.data;
+      world.apiclient().createcontainer(
+          createparams, // { Image : 'debian', Tty : true, Cmd : ['/bin/bash'], name : 'Lovely_Chitra' }
+          function onContainerCreate(success) {
+            dialog.close();
+            world.containers.add(createparams.name,
+                                 { State : 'created', Image : createparams.Image, Command : createparams.Cmd }).redraw();
+            widget.log('Container ' + createparams.name + ' created.');
+          },
+          function onContainerCreateError(err) {
+            dialog.close();
+            onstartstopError(err);
+          });
+    }
+  }
+
+  function notcreatecommand(arguments)
   {
     if(arguments.length > 1) {
       world.addcontainer(arguments[1]);
@@ -75,7 +110,7 @@ var dockergameconsole = function(world) {
                                        function(success) {
                                          var dialog = world.dialog();
                                          dialog.html('<h1>Inspecting ' + arg.name() + '</h2><div>' +
-                                                     JSON.stringify(success.data) + '</div>');
+                                                     JSON.stringify(success.data, null, '\t') + '</div>');
                                          dialog.open();
 
                                        },
@@ -112,14 +147,13 @@ var dockergameconsole = function(world) {
 
   function dotopcommand(container)
   {
-    container.top(
-        function(success) {
-          var dialog = world.dialog();
-          dialog.html('<h1>Processes running in ' + container.name() + '</h2><div>' + JSON.stringify(success.data) + '</div>');
-          dialog.open();
+    container.top(function(success) {
+      var dialog = world.dialog();
+      dialog.html('<h1>Processes running in ' + container.name() + '</h2><div>' + JSON.stringify(success.data) +
+                  '</div>');
+      dialog.open();
 
-        },
-        onstartstopError);
+    }, onstartstopError);
   }
 
   function topcommand(arguments)
@@ -134,14 +168,12 @@ var dockergameconsole = function(world) {
 
   function dologscommand(container)
   {
-    container.logs(
-        function(success) {
-          var dialog = world.dialog();
-          dialog.html('<h1>Logs of ' + container.name() + '</h2><div>' + JSON.stringify(success.data) + '</div>');
-          dialog.open();
+    container.logs(function(success) {
+      var dialog = world.dialog();
+      dialog.html('<h1>Logs of ' + container.name() + '</h2><div>' + JSON.stringify(success.data) + '</div>');
+      dialog.open();
 
-        },
-        onstartstopError);
+    }, onstartstopError);
   }
 
   function logscommand(arguments)
@@ -223,7 +255,6 @@ var dockergameconsole = function(world) {
   this.log = function(message) { widget.log(message); };
 
   this.doCommand = process;
-
 };
 
 module.exports = dockergameconsole;

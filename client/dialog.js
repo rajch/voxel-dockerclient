@@ -4,6 +4,8 @@ function dockerdialog(world)
 {
   var opts = {};
   var box = document.createElement('div');
+  var frame;
+  var messageHandler;
 
   box.setAttribute('class', 'docker-dialog-content');
   opts.contents = [box];
@@ -25,7 +27,10 @@ function dockerdialog(world)
     dialog.open();
   };
 
-  this.close = dialog.close;
+  this.close = function() {
+    clean();
+    dialog.close();
+  };
 
   this.html = function(arg) {
     if(arg) {
@@ -34,6 +39,38 @@ function dockerdialog(world)
 
     return box.innerHTML;
   };
+
+  this.iframe = function(src, initialmessage, messagehandler) {
+    clean();
+    
+
+    frame = document.createElement('iframe');
+    frame.style.width = '90%';
+    frame.style.height = '90%';
+    box.appendChild(frame);
+
+    frame.src = src;
+    messageHandler = messagehandler;
+    frame.onload = function onDialogIframeLoaded() {
+      window.addEventListener('message', messageHandler, false);
+
+      frame.contentWindow.postMessage(initialmessage, '*');
+    };
+
+    return frame;
+  };
+
+  function clean()
+  {
+    if(frame) {
+      if(frame.parentElement) {
+        frame.parentElement.removeChild(frame);
+      }
+      delete frame;
+      window.removeEventListener('message', messageHandler, false);
+    }
+    box.innerHTML = '';
+  }
 }
 
 module.exports = dockerdialog;

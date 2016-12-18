@@ -61,7 +61,7 @@ var Container = function(world, name, dockerdata, startXposition) {
 
     if(!containertitle) {
       // Draw the container name
-      var textGeometry = new T.TextGeometry(name, {
+      var textGeometry = new T.TextGeometry(name + "(" + dockerdata.Image + ")|" + dockerdata.Command, {
         size : 0.1,
         height : 0.1,
         curveSegments : 2,
@@ -134,9 +134,9 @@ var Container = function(world, name, dockerdata, startXposition) {
 
   this.logs = function(successCallback, errorCallback) {
     client.logscontainer(name,
-                        {},
-                        function(success) { successCallback.call(this, success); },
-                        function(error) { errorCallback.call(this, error); })
+                         {},
+                         function(success) { successCallback.call(this, success); },
+                         function(error) { errorCallback.call(this, error); })
   };
 
   this.start = function(successCallback, errorCallback) {
@@ -259,6 +259,15 @@ var dockercontainercollection = function(world) {
         retval = containers[containerindex];
     }
     return retval;
+  }
+
+  function createcontainerinworld(createparams, successCallback, errorCallback)
+  {
+    // { Image : 'debian', Tty : true, Cmd : ['/bin/bash'], name : 'Lovely_Chitra' }
+    world.apiclient().createcontainer(
+          createparams,
+          function onContainerCreate(success) { widget.log('Success:' + JSON.stringify(success)); },
+          function onContainerCreateError(err) { widget.log('Lagi:' + JSON.stringify(err)); });
   }
 
   /** Add a container to the world

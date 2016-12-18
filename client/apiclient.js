@@ -17,7 +17,7 @@ function apiclient(baseurl)
   {
     opts = opts || {};
 
-    axios.post(baseurl + url, { params : opts }).then(function(response) {
+    axios.post(baseurl + url, opts).then(function(response) {
       successHandler.call(axios, response);
     }).catch(function(error) { errorHandler.call(axios, error); });
   }
@@ -27,6 +27,12 @@ function apiclient(baseurl)
     opts.all = opts.all || 1;
 
     get('/containers/json', opts, successHandler, errorHandler);
+  };
+
+  this.createcontainer = function(opts, successHandler, errorHandler) {
+    opts = opts || { image:debian, tty:true };
+    
+    post('/containers/create', opts, successHandler, errorHandler);
   };
 
   this.inspectcontainer = function(name, opts, successHandler, errorHandler) {
@@ -58,6 +64,11 @@ function apiclient(baseurl)
 
     post('/containers/' + name + '/stop', opts, successHandler, errorHandler);
   };
-}
 
+  this.listimages = function(opts, successHandler, errorHandler) {
+    opts = opts || {};
+
+    get('/images/json', opts, successHandler, errorHandler);
+  };
+}
 module.exports = apiclient;

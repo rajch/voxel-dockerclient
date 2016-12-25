@@ -17,6 +17,7 @@ var dockergameconsole = function(world) {
     "start" : startcommand,
     "stop" : stopcommand,
     "top" : topcommand,
+    "remove" : removecommand,
     "logs" : logscommand,
     "t" : testcommand
   };
@@ -50,7 +51,8 @@ var dockergameconsole = function(world) {
           function onContainerCreate(success) {
             dialog.close();
             world.containers.add(createparams.name,
-                                 { State : 'created', Image : createparams.Image, Command : createparams.Cmd }).redraw();
+                                 { State : 'created', Image : createparams.Image, Command : createparams.Cmd })
+                .redraw();
             widget.log('Container ' + createparams.name + ' created.');
           },
           function onContainerCreateError(err) {
@@ -214,6 +216,27 @@ var dockergameconsole = function(world) {
       dostopcommand(world.containers.getContainer(cn));
     } else {
       widget.log('Either stand in front of a container or use: stop <containername>');
+    }
+  }
+
+  function doremovecommand(containername)
+  {
+    world.apiclient().removecontainer(containername,
+                                      {},
+                                      function() {
+                                        world.removecontainer(containername);
+                                        widget.log('Container ' + containername + ' removed.');
+                                      },
+                                      onstartstopError);
+  }
+
+  function removecommand(arguments)
+  {
+    var cn = arguments[1] || world.player().getAdjacentContainerName();
+    if(cn) {
+      doremovecommand(cn);
+    } else {
+      widget.log('Either stand in front of a container or use: remove <containername>');
     }
   }
 

@@ -53,14 +53,25 @@ app.get('/containers/:containername/logs', function(req, res) {
   ct.logs({ stdout : true, stderr : false, follow : false }, handleResponse(req, res));
 });
 
+
+// docker start
 app.post('/containers/:containername/start', function(req, res) {
   var ct = docker.getContainer(req.params['containername']);
   ct.start(handleResponse(req, res));
 });
 
+
+// docker stop
 app.post('/containers/:containername/stop', function(req, res) {
   var ct = docker.getContainer(req.params['containername']);
   ct.stop(handleResponse(req, res));
+});
+
+// docker rm
+app.delete('/containers/:containername', function(req, res) {
+  var ct = docker.getContainer(req.params['containername']);
+  var removeOpts = {}; // For later
+  ct.remove(removeOpts, handleResponse(req, res));  
 });
 
 // docker images

@@ -21,6 +21,15 @@ function apiclient(baseurl)
       successHandler.call(axios, response);
     }).catch(function(error) { errorHandler.call(axios, error); });
   }
+  
+  function deleteverb(url, opts, successHandler, errorHandler) {
+   opts = opts || {};
+
+    axios.delete(baseurl + url, opts).then(function(response) {
+      successHandler.call(axios, response);
+    }).catch(function(error) { errorHandler.call(axios, error); });
+
+  }
 
   this.listcontainers = function(opts, successHandler, errorHandler) {
     opts = opts || { all : 1 };
@@ -63,6 +72,12 @@ function apiclient(baseurl)
     opts = opts || {};
 
     post('/containers/' + name + '/stop', opts, successHandler, errorHandler);
+  };
+  
+  this.removecontainer = function(name, opts, successHandler, errorHandler) {
+    opts = opts || {};
+
+    deleteverb('/containers/' + name, opts, successHandler, errorHandler);
   };
 
   this.listimages = function(opts, successHandler, errorHandler) {

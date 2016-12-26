@@ -1,18 +1,20 @@
 <!doctype html !>
 <html>
   <head>
-    
+      <link rel="stylesheet" href="css/createdialogstyles.css">
   </head>
   <body>
     <div class="dialog-container">
-      <h2>Create container</h2>
       <div class="dialog-inputs">
         <form>
-        <div>Name : <input type="text" id="containername" name="containername" ></div>
-        <div>Interactive : <input type="checkbox" id="containerinteractive" name="containerinteractive"></div>
-        <div>Image : <select id="dockerimage" name="dockerimage"></select></div>
-        <div>Command : <input type="text" id="containercmd" name="containercmd" ></div>
-        <div><input type="submit" id="submitbutton"><input type="reset" id="resetbutton"></div> 
+        <div><label for="containername">Name :</label><input type="text" id="containername" name="containername" ></div>
+        <div><label for="containerinteractive">Interactive :</label><input type="checkbox" id="containerinteractive" name="containerinteractive"></div>
+        <div><label for="dockerimage">Image :</label><select id="dockerimage" name="dockerimage"></select></div>
+        <div><label for="containercmd">Command :</label><input type="text" id="containercmd" name="containercmd" ></div>
+        <div class="errorRow">
+        <div id="nameerror" class="invisible">* Container name already used. Please choose another.</div>
+        </div>
+        <div class="buttonRow"><input type="submit" id="submitbutton" value="Create"><input type="reset" id="resetbutton" value="Cancel"></div> 
         </form>
         <script src="js/createdialog.js"></script>
       </div>

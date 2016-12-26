@@ -1,0 +1,25 @@
+.invisible {
+  visibility:hidden;
+}
+
+input.error {
+  border: 1px dotted red;
+}
+
+.dialog-inputs label {
+  width: 300px;
+  margin-right: 5px;
+  display: inline-block;
+}
+
+.dialog-inputs .buttonRow {
+  margin-top: 1.5em;
+  text-align: center;
+}
+
+.dialog-inputs .errorRow {
+  color: red;
+}
+.dialog-inputs .buttonRow input {
+  margin-right: 5px;
+}

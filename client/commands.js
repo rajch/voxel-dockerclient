@@ -62,8 +62,8 @@ function commands(world)
              function inpectCommand(container) {
                container.inspect(function inspectSuccess(success) {
                  var dialog = world.dialog();
-                 dialog.html('<h1>Inspecting ' + container.name() + '</h2><div><pre>' +
-                             JSON.stringify(success.data, null, '\t') + '</pre></div>');
+                 dialog.heading('Inspecting ' + container.name());
+                 dialog.html('<pre>' + JSON.stringify(success.data, null, '\t') + '</pre>');
                  dialog.open();
 
                }, onRequestError);
@@ -77,8 +77,8 @@ function commands(world)
                if(containerState === CONTAINERSTATE.running || containerState === CONTAINERSTATE.paused) {
                  container.top(function topSuccess(success) {
                    var dialog = world.dialog();
-                   dialog.html('<h1>Processes running in ' + container.name() + '</h2><div>' +
-                               JSON.stringify(success.data) + '</div>');
+                   dialog.heading('Processes running in ' + container.name());
+                   dialog.html('<pre>' + JSON.stringify(success.data) + '</pre>');
                    dialog.open();
 
                  }, onRequestError);
@@ -159,11 +159,13 @@ function commands(world)
       'create',
       'Creates a container',
       function createCommand(container) {
-
+        var dialog = world.dialog();
+        
         world.apiClient.listimages(
             {},
             function createSuccess(success) {
               var dialog = world.dialog();
+              dialog.heading('Create a new container');
               dialog.iframe('createdialog.html', { "message" : 'init', data : success.data }, onCreateDialogMessage);
               dialog.open();
 
@@ -172,25 +174,46 @@ function commands(world)
 
         function onCreateDialogMessage(event)
         {
-          var dialog = world.dialog();
           if(event.data.message === 'cancel') {
             dialog.close();
+          } else if(event.data.message === 'verifyname') {
+            verifynameavailable(event.data.name);
           } else if(event.data.message === 'create') {
             var createparams = event.data.data;
-            world.apiClient.createcontainer(
-                createparams, // { Image : 'debian', Tty : true, Cmd : ['/bin/bash'], name : 'Lovely_Chitra' }
-                function onContainerCreate(success) {
-                  dialog.close();
-                  world.containers.add(createparams.name,
-                                       { State : 'created', Image : createparams.Image, Command : createparams.Cmd })
-                      .redraw();
-                  world.log('Container ' + createparams.name + ' created.');
-                },
-                function onContainerCreateError(err) {
-                  dialog.close();
-                  onRequestError(err);
-                });
+            if(verifynameavailable(createparams.name)) {
+              // Sanitize command
+              if(createparams.Cmd === '') {
+                // Do not pass empty command
+                delete createparams.Cmd;
+              } else {
+                // Command should be a whitespace-split Go array.
+                createparams.Cmd = createparams.Cmd.split(' ');
+              }
+              world.apiClient.createcontainer(
+                  createparams, // { Image : 'debian', Tty : true, Cmd : ['/bin/bash'], name : 'Lovely_Chitra' }
+                  function onContainerCreate(success) {
+                    dialog.close();
+                    world.containers.add(createparams.name,
+                                         { State : 'created', Image : createparams.Image, Command : createparams.Cmd })
+                        .redraw();
+                    world.log('Container ' + createparams.name + ' created.');
+                  },
+                  function onContainerCreateError(err) {
+                    dialog.close();
+                    onRequestError(err);
+                  });
+            }
           }
+        }
+
+        function verifynameavailable(name)
+        {
+          var result = true;
+          if(world.containers.getContainer(name)) {
+            dialog.postMessage({ message : 'containerexists', data : { name : name } });
+            result = false;
+          }
+          return result;
         }
 
       },

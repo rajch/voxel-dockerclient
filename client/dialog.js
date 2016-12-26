@@ -1,22 +1,31 @@
 var ModalDialog = require('voxel-modal-dialog');
 
-function dockerdialog(world)
+/** The modal dialog shown in voxel-dockerclient
+ *  @constructor
+ *  @param {world} world - The voxel-dockerclient world object
+ */
+function dialog(world)
 {
   var opts = {};
   var box = document.createElement('div');
+  box.className = 'docker-dialog-content';
+
+  var headingelement = document.createElement('h2');
+  box.appendChild(headingelement);
+
+  var innerbox = document.createElement('div');
+  innerbox.className = 'content';
+  box.appendChild(innerbox);
+
   var frame;
   var messageHandler;
 
-  box.setAttribute('class', 'docker-dialog-content');
   opts.contents = [box];
 
-  var dialog = new ModalDialog(world.game(), opts);
+  var modaldialog = new ModalDialog(world.game(), opts);
 
-  this.open = function(args) {
-    if(typeof args === 'string') {
-      box.innerHTML = args;
-    }
-
+  function open()
+  {
     var parentElement = world.options().parentElement;
     var width = parentElement.clientWidth * 0.8;
     var height = parentElement.clientHeight * 0.8;
@@ -24,41 +33,56 @@ function dockerdialog(world)
     box.style.width = width + "px";
     box.style.height = height + "px";
 
-    dialog.open();
-  };
+    modaldialog.open();
+  }
 
-  this.close = function() {
+  function close()
+  {
     clean();
-    dialog.close();
-  };
+    modaldialog.close();
+  }
 
-  this.html = function(arg) {
+  function heading(text)
+  {
+    if(text) {
+      headingelement.innerText = text;
+    }
+    return headingelement.innerText;
+  }
+
+  function html(arg)
+  {
     if(arg) {
-      box.innerHTML = arg;
+      clean();
+      innerbox.innerHTML = arg;
+      innerbox.classList.add('fill');
     }
 
-    return box.innerHTML;
-  };
+    return innerbox.innerHTML;
+  }
 
-  this.iframe = function(src, initialmessage, messagehandler) {
+  function iframe(src, initialmessage, messagehandler)
+  {
     clean();
-    
 
     frame = document.createElement('iframe');
-    frame.style.width = '90%';
-    frame.style.height = '90%';
-    box.appendChild(frame);
+    innerbox.appendChild(frame);
 
     frame.src = src;
     messageHandler = messagehandler;
     frame.onload = function onDialogIframeLoaded() {
       window.addEventListener('message', messageHandler, false);
 
-      frame.contentWindow.postMessage(initialmessage, '*');
+      postMessage(initialmessage);
     };
-
-    return frame;
   };
+
+  function postMessage(message)
+  {
+    if(frame) {
+      frame.contentWindow.postMessage(message, '*');
+    }
+  }
 
   function clean()
   {
@@ -69,8 +93,47 @@ function dockerdialog(world)
       delete frame;
       window.removeEventListener('message', messageHandler, false);
     }
-    box.innerHTML = '';
+    innerbox.innerHTML = '';
+    innerbox.classList.remove('fill');
   }
+
+  /** Opens the dialog
+   *  @method
+   */
+  this.open = open;
+
+  /** Closes the dialog
+   *  @method
+   */
+  this.close = close;
+
+  /** Sets of returns the heading of the dialog.
+   *  @method
+   *  @param {string} text - The text of the heading.
+   *  @returns {string} - The text of the heading.
+   */
+  this.heading = heading;
+
+  /** Sets or returns the HTML shown in the dialog. Setting clears any prior content.
+   *  @method
+   *  @param {string} args - Valid HTML or text. If not passed, HTML will be returned.
+   *  @returns {string} html - The existing contents of the dialog.
+   */
+  this.html = html;
+
+  /** Creates and loads an iframe inside the dialog. This clears any prior content.
+   *  @method
+   *  @param {string} src - The source of the iframe
+   *  @param {object} initialmessage - The message to be sent to the iframe. Object - {message:'', data:{} }
+   *  @param {function} messageHandler - The handler that will receive messages from the iframe
+   */
+  this.iframe = iframe;
+
+  /** Posts a message to the current iframe in the dialog, if any
+   *  @method
+   *  @param {object} message - The message to be sent to the iframe. Object - {message:'', data:{} }
+   */
+  this.postMessage = postMessage;
 }
 
-module.exports = dockerdialog;
+module.exports = dialog;

@@ -49,7 +49,7 @@ var dockerworld = function(opts) {
   opts.container = opts.parentElement;
   opts.statsDisabled = opts.statsDisabled || true;
   opts.artpackpath = opts.artpackpath || 'artpacks/artpack.zip';
-  opts.materials = [ [ 'grass', 'dirt', 'grass_dirt' ], 'brick', 'dirt', 'plank' ];
+  opts.materials = [ [ 'grass', 'dirt', 'grass_dirt' ], 'brick', 'dirt', 'plank', 'container', 'exited', 'running' ];
   opts.generateChunks = true;
   opts.generate = function flatLand(x, y, z) { return y == 1 ? 1 : 0; };
   opts.startingPosition = [ 0, 2, 0 ];

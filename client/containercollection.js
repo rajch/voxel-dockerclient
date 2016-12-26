@@ -48,13 +48,13 @@ var Container = function(world, name, dockerdata, startXposition) {
     game.blocks(containerstartpos, containerendpos, function(x, y, z, i) {
       if((x === containerstartpos[0] || x === containerendpos[0] - 1) &&
              (z === containerstartpos[2] || z === containerendpos[2] - 1) ||
-         y == CONTAINERORIGIN[1] + CHEIGHT - 1) {
-        game.setBlock([ x, y, z ], 'dirt');
+         y == CONTAINERORIGIN[1] + CHEIGHT - 1 || y == CONTAINERORIGIN[1])  {
+        game.setBlock([ x, y, z ], 'container');
       } else {
         if(state !== CONTAINERSTATE.running) {
-          game.setBlock([ x, y, z ], 'plank');
+          game.setBlock([ x, y, z ], 'exited');
         } else {
-          game.setBlock([ x, y, z ], 0);
+          game.setBlock([ x, y, z ], 'running');
         }
       }
     });
@@ -72,7 +72,7 @@ var Container = function(world, name, dockerdata, startXposition) {
         bevelEnabled : false
       });
 
-      var textMaterial = new T.MeshBasicMaterial({ color : 0x0000ff });
+      var textMaterial = new T.MeshBasicMaterial({ color : 0x325722 });
 
       var mesh = new T.Mesh(textGeometry, textMaterial);
       mesh.position.set(containerstartpos[0], CONTAINERORIGIN[1] + CHEIGHT + 0.15, containerendpos[2]);

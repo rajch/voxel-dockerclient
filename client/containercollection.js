@@ -7,7 +7,7 @@ const CPADDEDWIDTH = 4;
 /** Container States
  *  @enum {string}
  */
-const CONTAINERSTATE = {
+global.CONTAINERSTATE = {
   'created' : 'created',
   'restarting' : 'restarting',
   'running' : 'running',
@@ -26,7 +26,7 @@ var Container = function(world, name, dockerdata, startXposition) {
   const game = world.game();
   const thiscontainer = this;
 
-  const client = world.apiclient();
+  const client = world.apiClient;
 
   const T = game.THREE;
 
@@ -170,6 +170,7 @@ var Container = function(world, name, dockerdata, startXposition) {
  */
 var dockercontainercollection = function(world) {
   var thiscollection = this;
+  const client = world.apiClient;
 
   var containers = [];
   var containernames = {};
@@ -264,7 +265,7 @@ var dockercontainercollection = function(world) {
   function createcontainerinworld(createparams, successCallback, errorCallback)
   {
     // { Image : 'debian', Tty : true, Cmd : ['/bin/bash'], name : 'Lovely_Chitra' }
-    world.apiclient().createcontainer(
+    client.createcontainer(
           createparams,
           function onContainerCreate(success) { widget.log('Success:' + JSON.stringify(success)); },
           function onContainerCreateError(err) { widget.log('Lagi:' + JSON.stringify(err)); });
@@ -301,13 +302,22 @@ var dockercontainercollection = function(world) {
    *  @method
    *  @param {string} name - A container name
    *  @returns Container
-   *  @deprecated
    */
   this.getContainer = function(name) {
     var itemindex = containernames[name];
     return itemindex !== undefined ? containers[itemindex] : itemindex;
   };
+  /** Draws containers in a chunk
+   *  @method
+   *  @param {array} chunkposition
+   */
+  this.drawContainers = redrawContainersInChunk;
 
+  /** Gets a container object by position
+   *  @method
+   *  @param {Array.int} pos - A position array [x, y, z]
+   *  @returns Container
+   */
   this.getContainerAtPosition = getContainerAtPosition;
 };
 

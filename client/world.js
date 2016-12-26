@@ -1,6 +1,4 @@
 // voxel-plugins needs a require for all plugins, for browserify
-require('voxel-registry');
-require('voxel-blockdata');
 require('voxel-keys');
 require('voxel-console');
 
@@ -9,6 +7,7 @@ var ContainerCollection = require('./containercollection');
 var ApiClient = require('./apiclient');
 var GameConsole = require('./gameconsole');
 var Dialog = require('./dialog');
+var Commands = require('./commands');
 
 /** The voxel-dockerclient world
  *  @constructor
@@ -23,7 +22,7 @@ var dockerworld = function(opts) {
   var dialog;
 
   var cc = new ContainerCollection(thisworld);
-
+  var commands = new Commands(thisworld);
   var apiclient = new ApiClient();
 
   opts = opts || {};
@@ -68,39 +67,12 @@ var dockerworld = function(opts) {
   global.Ggame = game;
   window._typeface_js = { faces : game.THREE.FontUtils.faces, loadFace : game.THREE.FontUtils.loadFace };
 
-  // Load art pack, required for inventory etc.
-  var createArtpacks = require('artpacks');
-  var artpacks = createArtpacks([opts.artpackpath]);
-  game.materials.artPacks = artpacks;
-
   // Add plugins
-  //      voxel-registry, used variously
-  //      voxel-blockdata, for storing metadata for actions
   var plugins = require('voxel-plugins')(game, { require : require });
-  plugins.add('voxel-registry', {});
-  plugins.add('voxel-blockdata', {});
   plugins.add('voxel-keys', {});
   plugins.add('voxel-console', {});
 
   plugins.loadAll();
-
-  // Artpack-dependent things should be loaded
-  // after artpacks
-  artpacks.on('loadedAll', function() {
-
-    player = new Player(thisworld);
-    dialog = new Dialog(thisworld);
-
-    gameconsole = new GameConsole(thisworld);
-
-    var keys = plugins.get('voxel-keys');
-    keys.down.on('inspect', function() { gameconsole.doCommand('inspect', true); });
-
-    listContainers();
-
-    gameconsole.log('Welcome to Voxel-Dockerclient. Have fun.');
-
-  });
 
   function listContainers()
   {
@@ -116,29 +88,30 @@ var dockerworld = function(opts) {
                              function(error) { this.log(error); });
   }
 
-  // this.containerOrigin = CONTAINERORIGIN;
-
-  this.getNextContainerPosition = cc.getNextContainerPosition;
-
-  this.getContainer = cc.getContainer;
+  this.options = function() { return opts; };
+  
+  this.containers = cc;
+  this.commands = commands;
+  this.apiClient = apiclient;
 
   this.game = function() { return game; };
 
+  player = new Player(thisworld);
   this.player = function() { return player; };
-
+  
+  dialog = new Dialog(thisworld);
   this.dialog = function() { return dialog; };
 
-  this.apiclient = function() { return apiclient; };
+  gameconsole = new GameConsole(thisworld);
+  
+  this.log = gameconsole.log;
+  this.logUsage = gameconsole.logUsage;
+  this.logWarning = gameconsole.logWarning;
+  this.logError = gameconsole.logError;
+  
+  listContainers();
 
-  this.options = function() { return opts; };
-
-  this.log = function(text) { gameconsole.log(text); };
-
-  this.containers = cc;
-
-  this.addcontainer = cc.add;
-  this.removecontainer = cc.remove;
-
+  gameconsole.log('Welcome to Voxel-Dockerclient. Have fun.');
 };
 
 module.exports = dockerworld;

@@ -31,7 +31,7 @@ var dockerplayer = function(world) {
 
   this.gohome = function() { player.moveTo(2, 2, 0); };
 
-  this.gotonextslot = function() { player.moveTo(world.getNextContainerPosition(), 2, 0); };
+  this.gotonextslot = function() { player.moveTo(world.containers.getNextContainerPosition(), 2, 0); };
 
   this.moveToContainer = function(name) {
     var citem = world.containers.getContainer(name);

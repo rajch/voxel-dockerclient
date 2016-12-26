@@ -32,7 +32,6 @@
     "express": "^4.14.0",
     "morgan": "^1.7.0",
     "shellwords": "^0.1.0",
-    "voxel-blockdata": "^0.2.1",
     "voxel-console": "^1.0.1",
     "voxel-engine": "git+https://github.com/rajch/voxel-engine.git",
     "voxel-fly": "^0.1.2",
@@ -40,7 +39,6 @@
     "voxel-modal-dialog": "^1.0.1",
     "voxel-player": "^0.1.0",
     "voxel-plugins": "^0.5.0",
-    "voxel-registry": "^0.8.3",
     "voxel-walk": "0.0.5"
   }
 }

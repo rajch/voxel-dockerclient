@@ -260,6 +260,9 @@ function commands(world)
       },
       'generalcommand');
 
+  addCommand(
+      'refresh', 'Re-loads voxel-dokcerclient', function refreshCommand(args) { location.reload(); }, 'generalcommand');
+
   /** Add a command
    *  @method
    *  @param {string} name - Name of the command

@@ -36,10 +36,6 @@ function commands(world)
     commands[name].execute(arguments);
   }
 
-  function listCommands()
-  {
-  }
-
   function getCommand(name)
   {
     name = name.toLowerCase();
@@ -56,6 +52,20 @@ function commands(world)
   }
 
   // Set up built-in commands
+  addCommand('help',
+             'Shows all available commands',
+             function helpCommand(args) {
+               var helpHeader = [ 'Command', 'Description' ];
+               var helpBody = [];
+               for(var cn in commands) {
+                 helpBody.push([ cn, commands[cn].description ]);
+               }
+               var dialog = world.dialog();
+               dialog.heading('Available commands');
+               dialog.html(world.tablify({ header : helpHeader, body : helpBody }));
+               dialog.open();
+             },
+             'generalcommand');
 
   addCommand('inspect',
              'Inspects a container',
@@ -78,7 +88,7 @@ function commands(world)
                  container.top(function topSuccess(success) {
                    var dialog = world.dialog();
                    dialog.heading('Processes running in ' + container.name());
-                   dialog.html('<pre>' + JSON.stringify(success.data) + '</pre>');
+                   dialog.html(world.tablify({ header : success.data.Titles, body : success.data.Processes }));
                    dialog.open();
 
                  }, onRequestError);
@@ -160,7 +170,7 @@ function commands(world)
       'Creates a container',
       function createCommand(container) {
         var dialog = world.dialog();
-        
+
         world.apiClient.listimages(
             {},
             function createSuccess(success) {
@@ -216,6 +226,37 @@ function commands(world)
           return result;
         }
 
+      },
+      'generalcommand');
+
+  addCommand(
+      'welcome',
+      'Shows the welcome message',
+      function welcomeCommand() {
+        var dialog = world.dialog();
+        dialog.heading('Welcome to voxel-dockerclient');
+        var welcomecontent = {
+          header : [ 'Use', 'To' ],
+          body : [
+            [ 'your mouse', 'look around' ],
+            [ 'W,A,S,D keys', 'move in the four directions' ],
+            [ 'space bar', 'jump. Tap twice to start flying. When flying, the space bar will take you higher.' ],
+            [ 'shift key', 'come down when flying. When you hit the ground, you will start walking again.' ],
+            [
+              '` key (above Tab)',
+              'open the command console. This will also close the console and any dialog, including this one.'
+            ],
+            [ 'R key', 'toggle between first-person and third-person views.' ],
+            [ 'I key', 'to inspect the container in front of you. You have to stand right in front of a container.' ],
+            [
+              'Esc key',
+              'remove focus from the window. You will have to click the window again for things to work. Try not to press Esc :)'
+            ],
+            [ '', "That's it. Have fun." ]
+          ]
+        };
+        dialog.html(world.tablify(welcomecontent));
+        dialog.open();
       },
       'generalcommand');
 

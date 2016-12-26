@@ -74,7 +74,7 @@ var dockerworld = function(opts) {
 
   plugins.loadAll();
 
-  function listContainers()
+  function listContainers(successHandler, errorHandler)
   {
     apiclient.listcontainers({},
                              function(success) {
@@ -84,12 +84,20 @@ var dockerworld = function(opts) {
                                }
                                cc.drawContainers([ 0, 0, -1 ]);
                                cc.drawContainers([ 1, 0, -1 ]);
+                               if(successHandler) {
+                                 successHandler.call(thisworld, success.data);
+                               }
                              },
-                             function(error) { this.log(error); });
+                             function(error) {
+                               this.log(error);
+                               if(errorHandler) {
+                                 errorHandler.call(thisworld, error);
+                               }
+                             });
   }
 
   this.options = function() { return opts; };
-  
+
   this.containers = cc;
   this.commands = commands;
   this.apiClient = apiclient;
@@ -98,20 +106,24 @@ var dockerworld = function(opts) {
 
   player = new Player(thisworld);
   this.player = function() { return player; };
-  
+
   dialog = new Dialog(thisworld);
   this.dialog = function() { return dialog; };
 
   gameconsole = new GameConsole(thisworld);
-  
+
   this.log = gameconsole.log;
   this.logUsage = gameconsole.logUsage;
   this.logWarning = gameconsole.logWarning;
   this.logError = gameconsole.logError;
-  
-  listContainers();
+  this.tablify = gameconsole.tablify;
 
-  gameconsole.log('Welcome to Voxel-Dockerclient. Have fun.');
+  listContainers(function listContainersSuccess(){
+    gameconsole.log('Type help and press enter to see available commands.');
+    gameconsole.executeCommand('welcome');
+  });
+
+
 };
 
 module.exports = dockerworld;

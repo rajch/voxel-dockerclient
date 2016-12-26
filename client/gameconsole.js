@@ -50,6 +50,27 @@ var dockergameconsole = function(world) {
     }
   }
 
+  function tablify(tabledata)
+  {
+    var header;
+    var bodyrows;
+    var body;
+    var table;
+
+    bodyrows = tabledata.body.map(function(row){ return row.map(function(cell) { return '<td>' + cell + '</td>' }) });
+    body = '<tbody>' + bodyrows.map(function(row) { return '<tr>' + row.join('') + '</tr>'; }).join('') + '</tbody>';
+
+    table = '<table>';
+    if(tabledata.header) {
+      header =
+          '<thead>' + tabledata.header.map(function(cell) { return '<th>' + cell + '</th>'; }).join('') + '</thead>';
+      table += header;
+    }
+    table += body;
+
+    return table;
+  }
+
   function logCommand(text)
   {
     widget.log("> " + text);
@@ -75,6 +96,13 @@ var dockergameconsole = function(world) {
   {
     widget.log(text);
   }
+  
+    /** Execute a command
+   *  @method
+   *  @param {string} name - Name of the command to executeCommand
+   *  @param {any} arguments - Arguments to pass to a command. No checks are done at this point
+   */
+   this.executeCommand = commands.execute;
 
   /** Log a message
    *  @method
@@ -93,13 +121,19 @@ var dockergameconsole = function(world) {
    *  @param {string} message
    */
   this.logWarning = logWarning;
-  
+
   /** Log an error message
    *  @method
    *  @param {string} message
    */
   this.logError = logError;
 
+  /** Change an object with a header and a body array to an HTML table
+   *  @method
+   *  @param {object} tabledata - Object in the form { header:[], body: [[]] }
+   *  @returns {string} - HTML table
+   */
+  this.tablify = tablify;
 };
 
 module.exports = dockergameconsole;

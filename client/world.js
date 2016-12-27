@@ -78,22 +78,36 @@ var dockerworld = function(opts) {
   {
     apiclient.listcontainers({},
                              function(success) {
+                               var returneddata = success.data.reverse();
                                var i;
-                               for(i = 0; i < success.data.length; i++) {
-                                 cc.add(success.data[i].Names[0].substring(1), success.data[i]);
+                               for(i = 0; i < returneddata.length; i++) {
+                                 cc.add(returneddata[i].Names[0].substring(1), returneddata[i]);
                                }
                                cc.drawContainers([ 0, 0, -1 ]);
                                cc.drawContainers([ 1, 0, -1 ]);
+                               cc.drawContainers([ 2, 0, -1]);
                                if(successHandler) {
                                  successHandler.call(thisworld, success.data);
                                }
                              },
                              function(error) {
-                               this.log(error);
                                if(errorHandler) {
                                  errorHandler.call(thisworld, error);
                                }
                              });
+  }
+
+  function refreshContainers()
+  {
+    var oldpos = player.getPosition();
+    player.gohome();
+    cc.clear();
+    listContainers(
+        function refreshSuccess(successdata) {
+          gameconsole.log('Containers refreshed.');
+          player.gotoPosition(oldpos);
+        },
+        function refreshError(error) { gameconsole.logError(error); });
   }
 
   this.options = function() { return opts; };
@@ -117,13 +131,24 @@ var dockerworld = function(opts) {
   this.logWarning = gameconsole.logWarning;
   this.logError = gameconsole.logError;
   this.tablify = gameconsole.tablify;
+  this.refresh = refreshContainers;
 
-  listContainers(function listContainersSuccess(){
-    gameconsole.log('Type help and press enter to see available commands.');
-    gameconsole.executeCommand('welcome');
-  });
-
-
+  listContainers(
+      function listContainersSuccess(successdata) {
+        game.setTimeout(function fadeTitle() {
+          document.getElementById('clienttitle').className = 'gone';
+        }, 30000);
+        gameconsole.log('Type help and press enter to see available commands.');
+        if(window.location.hash !== 'refresh') {
+          gameconsole.executeCommand('welcome');
+        }
+      },
+      function listContainersError(error) {
+        gameconsole.logError(error);
+        gameconsole.logUsage(
+            'If you are running this from a docker container, you probably forgot to map the docker socket as a volume. ' +
+            'Create the container with -v /var/run/docker.sock:/var/run/docker.sock');
+      });
 };
 
 module.exports = dockerworld;

@@ -38,7 +38,7 @@ var dockerplayer = function(world) {
     if(citem) {
       player.moveTo(citem.getPosition()[0] + 2, 2, 0);
     } else {
-      throw new Error('Could not find a container called "' + name + "'.");
+      throw new Error('There is no container called ' + name + '.');
     }
   };
 
@@ -58,6 +58,10 @@ var dockerplayer = function(world) {
     var citem = this.getAdjacentContainer();
     return citem !== undefined ? citem.name() : citem;
   };
+  
+  this.gotoPosition = function(pos) {
+    player.moveTo(pos[0], pos[1], pos[2]);
+  }
 };
 
 module.exports = dockerplayer;

@@ -48,7 +48,7 @@ var Container = function(world, name, dockerdata, startXposition) {
     game.blocks(containerstartpos, containerendpos, function(x, y, z, i) {
       if((x === containerstartpos[0] || x === containerendpos[0] - 1) &&
              (z === containerstartpos[2] || z === containerendpos[2] - 1) ||
-         y == CONTAINERORIGIN[1] + CHEIGHT - 1 || y == CONTAINERORIGIN[1])  {
+         y == CONTAINERORIGIN[1] + CHEIGHT - 1 || y == CONTAINERORIGIN[1]) {
         game.setBlock([ x, y, z ], 'container');
       } else {
         if(state !== CONTAINERSTATE.running) {
@@ -61,16 +61,17 @@ var Container = function(world, name, dockerdata, startXposition) {
 
     if(!containertitle) {
       // Draw the container name
-      var textGeometry = new T.TextGeometry(name + "(" + dockerdata.Image + ")|" + dockerdata.Command, {
-        size : 0.1,
-        height : 0.1,
-        curveSegments : 2,
-        font : 'droid sans',
-        weight : 'normal',
-        bevelThickness : 0.1,
-        bevelSize : 1,
-        bevelEnabled : false
-      });
+      var textGeometry = new T.TextGeometry(
+          name + '(' + dockerdata.Image + ')' + (dockerdata.Command ? '|' + dockerdata.Command : ''), {
+            size : 0.1,
+            height : 0.1,
+            curveSegments : 2,
+            font : 'droid sans',
+            weight : 'normal',
+            bevelThickness : 0.1,
+            bevelSize : 1,
+            bevelEnabled : false
+          });
 
       var textMaterial = new T.MeshBasicMaterial({ color : 0x325722 });
 
@@ -177,6 +178,16 @@ var dockercontainercollection = function(world) {
 
   var nextcontainerposition = [0];
 
+  function clearContainers()
+  {
+    var names = Object.keys(containernames).reverse();
+    names.map(function(cn) { removeContainerFromWorld(cn); });
+
+    containers = [];
+    containernames = {};
+    nextcontainerposition = [0];
+  }
+
   function getContainerOrdinalFromX(x)
   {
     return Math.trunc((x - CONTAINERORIGIN[0]) / 4);
@@ -207,7 +218,7 @@ var dockercontainercollection = function(world) {
   function removeContainerFromWorld(containername)
   {
     var itemindex = containernames[containername];
-    if(!itemindex)
+    if(itemindex === undefined)
       throw new Error('There is no container called ' + containername + '.');
     var citem = containers[itemindex];
 
@@ -265,10 +276,9 @@ var dockercontainercollection = function(world) {
   function createcontainerinworld(createparams, successCallback, errorCallback)
   {
     // { Image : 'debian', Tty : true, Cmd : ['/bin/bash'], name : 'Lovely_Chitra' }
-    client.createcontainer(
-          createparams,
-          function onContainerCreate(success) { widget.log('Success:' + JSON.stringify(success)); },
-          function onContainerCreateError(err) { widget.log('Lagi:' + JSON.stringify(err)); });
+    client.createcontainer(createparams,
+                           function onContainerCreate(success) { world.log('Success:' + JSON.stringify(success)); },
+                           function onContainerCreateError(err) { world.logError('Error:' + JSON.stringify(err)); });
   }
 
   /** Add a container to the world
@@ -319,6 +329,11 @@ var dockercontainercollection = function(world) {
    *  @returns Container
    */
   this.getContainerAtPosition = getContainerAtPosition;
+
+  /** Clears all containers
+   *  @method
+   */
+  this.clear = clearContainers;
 };
 
 module.exports = dockercontainercollection;

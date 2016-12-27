@@ -123,7 +123,7 @@ function commands(world)
              'containercommand');
 
   addCommand('go',
-             'Takes player to a container, or to the first or last container',
+             'Takes player to a container, or to the first or last container. Type go home if you get lost.',
              function goCommand(arguments) {
                var player = world.player();
                if(arguments.length > 1) {
@@ -261,7 +261,12 @@ function commands(world)
       'generalcommand');
 
   addCommand(
-      'refresh', 'Re-loads voxel-dokcerclient', function refreshCommand(args) { location.reload(); }, 'generalcommand');
+      'refresh', 'Re-fetches container list', function refreshCommand(args) { world.refresh(); }, 'generalcommand');
+
+  addCommand('restart',
+             'Restarts voxel-dockerclient. Use as a last resort.',
+             function refreshCommand(args) { window.location.reload(); },
+             'generalcommand');
 
   /** Add a command
    *  @method

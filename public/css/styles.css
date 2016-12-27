@@ -40,10 +40,31 @@ body {
 
 .docker-dialog-content .content table {
   width: 95%;
+  margin: 5px;
 }
 
 .docker-dialog-content .content table thead {
   background-color: black;
   color: white;
   text-align: left;
+}
+
+.docker-dialog-content .content table th,
+.docker-dialog-content .content table td {
+  padding: 0px 5px;
+}
+
+img#clienttitle {
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+img#clienttitle.gone {
+  animation: goaway 2s forwards;
+}
+
+@keyframes goaway {
+  from { left:0; }
+  to { left:100%; display: none; }
 }

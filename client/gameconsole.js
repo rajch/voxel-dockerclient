@@ -32,7 +32,11 @@ var dockergameconsole = function(world) {
         if(command.commandType === 'containercommand') {
           var container = argv[1] ? world.containers.getContainer(argv[1]) : world.player().getAdjacentContainer();
           if(!container) {
-            logUsage('Either stand in front of a container or use: ' + command.name() + ' <containername>');
+            if(argv[1]) {
+              logError('Error: There is no container called ' + argv[1]);
+            } else {
+              logUsage('Either stand in front of a container or use: ' + command.name() + ' <containername>');
+            }
           } else {
             command.execute(container);
           }
@@ -40,7 +44,7 @@ var dockergameconsole = function(world) {
           command.execute(argv);
         }
       } else {
-        logError('I do not recognize the "' + argv[0] + '" command.');
+        logError('Error: I do not recognize the "' + argv[0] + '" command.');
       }
     } catch(err) {
       logError(err);
@@ -96,13 +100,13 @@ var dockergameconsole = function(world) {
   {
     widget.log(text);
   }
-  
-    /** Execute a command
-   *  @method
-   *  @param {string} name - Name of the command to executeCommand
-   *  @param {any} arguments - Arguments to pass to a command. No checks are done at this point
-   */
-   this.executeCommand = commands.execute;
+
+  /** Execute a command
+ *  @method
+ *  @param {string} name - Name of the command to executeCommand
+ *  @param {any} arguments - Arguments to pass to a command. No checks are done at this point
+ */
+  this.executeCommand = commands.execute;
 
   /** Log a message
    *  @method

@@ -19,6 +19,9 @@ function handleResponse(req, res)
 {
   return function(err, result) {
     if(err) {
+      if(!err.statusCode) {
+        err.statusCode = 500;
+      }
       res.end(res.writeHead(err.statusCode, err.message || err.reason));
     } else {
       res.json(result);

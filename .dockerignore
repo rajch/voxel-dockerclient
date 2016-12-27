@@ -1,7 +1,16 @@
 node_modules
 typings
+.codelite
+.git
+docs/*
 .dockerignore
 .gitignore
+.tern-port
+.tern-project
 Dockerfile
 jsconfig.json
+LICENSE
+npm-debug.log*
+README.md
 typings.json
+voxel-dockerclient.workspace

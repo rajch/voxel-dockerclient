@@ -7,6 +7,10 @@ The dockercraft project turns the official Minecraft client into a docker client
 ## What is it not?
 voxel-dockerclient is not a serious tool for working with docker. It's a fun project (which may grow up to be a teaching aid someday).
 
+> WARNING: Please use voxel-dockerclient on your local machine only.
+> It currently doesn't support authentication.
+> Every player should be considered a root user! 
+
 ## How to run voxel-dockerclient
 ### Using the docker image
 The easiest way is to pull the docker image, and run from that. The steps are as follows:
@@ -19,7 +23,7 @@ The easiest way is to pull the docker image, and run from that. The steps are as
 2. Run it with:
 
   ```
-  docker run --name vdc1 -p 5000:8080 -v /var/run/docker.sock:/var/run/docker.sock rajchaudhuri/voxel-dockerclient
+  docker run -d --name vdc1 -p 5000:8080 -v /var/run/docker.sock:/var/run/docker.sock rajchaudhuri/voxel-dockerclient
   ```
 
   The  `-v /var/run/docker.sock:/var/run/docker.sock` is *very important*. This makes the UNIX socket, which the docker daemon listens to by default, available to the container. The container needs this to proxy a subset of the Docker remote API to voxel-dockerclient. If you leave this out by mistake, voxel-dockerclient will not work.
@@ -71,11 +75,11 @@ Open the command console, and try the commands. Currently, the following command
 
 Of these, the container-related commands like `start`, `stop`, `top`, `remove` and `inspect` can be invoked in two ways: either by using the `<command> <containername>` syntax, or by positioning the player exactly next to a container, and using just `<command>`.
 
-When the command console is closed, pressing the **I** key will invoke the `inpect` command. If the player is exactly next to a container, that container will be inspected.
+When the command console is closed, pressing the **I** key will invoke the `inspect` command. If the player is exactly next to a container, that container will be inspected.
 
 The `create` command allows you to create new containers. Currently, you can only use images already on your docker host. Image pulling will be added in a later release.
 
-Activity performed in other clients, such as the official docker client, will not reflect automatically in voxel-dockerclient. Use the `refresh` command periodincally.
+Activity performed in other clients, such as the official docker client, will not reflect automatically in voxel-dockerclient. Use the `refresh` command periodically.
 
 The `go` command can be used to teleport the player to a particular container, using the syntax `go <containername>`. `go home` will teleport to the first (oldest) container. `go nextslot` will teleport to the spot where the next new container will appear. 
 

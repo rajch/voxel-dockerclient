@@ -17,7 +17,21 @@ While flying, the space bar takes the player higher, and the shift key lower. On
 
 Open the command console, and try the commands. Currently, the following commands are available:
 
-<table><thead><tr><th>Command</th><th>Description</th></tr></thead><tbody><tr><td>help</td><td>Shows all available commands</td></tr><tr><td>inspect</td><td>Inspects a container</td></tr><tr><td>top</td><td>Shows processes running in a container</td></tr><tr><td>start</td><td>Starts a container</td></tr><tr><td>stop</td><td>Stops a container</td></tr><tr><td>go</td><td>Takes player to a container, or to the first or last container. Type go home if you get lost.</td></tr><tr><td>remove</td><td>Deletes a container</td></tr><tr><td>create</td><td>Creates a container</td></tr><tr><td>welcome</td><td>Shows the welcome message</td></tr><tr><td>refresh</td><td>Re-fetches container list</td></tr><tr><td>restart</td><td>Restarts voxel-dockerclient. Use as a last resort.</td></tr></tbody></table>
+
+|Command|Description|
+|-------|-----------|
+|help|Shows all available commands|
+|inspect|Inspects a container|
+|top|Shows processes running in a container|
+|start|Starts a container|
+|stop|Stops a container|
+|go|Takes player to a container, or to the first or last container. Type go home if you get lost.|
+|remove|Deletes a container|
+|create|Creates a container|
+|welcome|Shows the welcome message|
+|refresh|Re-fetches container list|
+|restart|Restarts voxel-dockerclient. Use as a last resort.|
+
 
 Of these, the container-related commands like `start`, `stop`, `top`, `remove` and `inspect` can be invoked in two ways: either by using the `<command> <containername>` syntax, or by positioning the player exactly next to a container, and using just `<command>`.
 

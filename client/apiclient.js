@@ -4,31 +4,34 @@ function apiclient(baseurl)
 {
   baseurl = baseurl ? baseurl : '';
 
-  function get(url, opts, successHandler, errorHandler)
+  function get(url, opts, successHandler, errorHandler, progressHandler)
   {
     opts = opts || {};
 
-    axios.get(baseurl + url, { params : opts }).then(function(response) {
-      successHandler.call(axios, response);
-    }).catch(function(error) { errorHandler.call(axios, error); });
+    var config = {};
+    config.params = opts;
+    if(typeof progressHandler === 'function') {
+      config.onDownloadProgress = progressHandler;
+    }
+
+    axios.get(baseurl + url, config).then(function(response) { successHandler.call(axios, response); }).catch(
+        function(error) { errorHandler.call(axios, error); });
   }
 
   function post(url, opts, successHandler, errorHandler)
   {
     opts = opts || {};
 
-    axios.post(baseurl + url, opts).then(function(response) {
-      successHandler.call(axios, response);
-    }).catch(function(error) { errorHandler.call(axios, error); });
+    axios.post(baseurl + url, opts).then(function(response) { successHandler.call(axios, response); }).catch(
+        function(error) { errorHandler.call(axios, error); });
   }
-  
-  function deleteverb(url, opts, successHandler, errorHandler) {
-   opts = opts || {};
 
-    axios.delete(baseurl + url, opts).then(function(response) {
-      successHandler.call(axios, response);
-    }).catch(function(error) { errorHandler.call(axios, error); });
+  function deleteverb(url, opts, successHandler, errorHandler)
+  {
+    opts = opts || {};
 
+    axios.delete (baseurl + url, opts).then(function(response) { successHandler.call(axios, response); }).catch(
+        function(error) { errorHandler.call(axios, error); });
   }
 
   this.listcontainers = function(opts, successHandler, errorHandler) {
@@ -39,8 +42,8 @@ function apiclient(baseurl)
   };
 
   this.createcontainer = function(opts, successHandler, errorHandler) {
-    opts = opts || { image:debian, tty:true };
-    
+    opts = opts || { image : debian, tty : true };
+
     post('/containers/create', opts, successHandler, errorHandler);
   };
 
@@ -56,10 +59,12 @@ function apiclient(baseurl)
     get('/containers/' + name + '/top', opts, successHandler, errorHandler);
   };
 
-  this.logscontainer = function(name, opts, successHandler, errorHandler) {
+  this.logscontainer = function(name, opts, successHandler, errorHandler, progressHandler) {
     opts = opts || {};
+    opts.stdout = true;
+    opts.stderr = true;
 
-    get('/containers/' + name + '/logs', opts, successHandler, errorHandler);
+    get('/containers/' + name + '/logs', opts, successHandler, errorHandler, progressHandler);
   };
 
   this.startcontainer = function(name, opts, successHandler, errorHandler) {
@@ -73,7 +78,7 @@ function apiclient(baseurl)
 
     post('/containers/' + name + '/stop', opts, successHandler, errorHandler);
   };
-  
+
   this.removecontainer = function(name, opts, successHandler, errorHandler) {
     opts = opts || {};
 

@@ -98,6 +98,40 @@ function commands(world)
              },
              'containercommand');
 
+  addCommand('logs',
+             'Shows container logs',
+             function logsCommand(container) {
+               var dialog = world.dialog();
+
+               var dialog = world.dialog();
+               dialog.heading('Showing logs of ' + container.name());
+               dialog.html('No logs yet.');
+               dialog.open();
+
+               world.apiClient.logscontainer(
+                   container.name(),
+                   {},
+                   function(){},
+                   function(){},
+                   function onLogsProgress(event) { dialog.html(formatResponse(event.currentTarget.responseText) + '</pre>'); });
+                   
+               function formatResponse(respText) {
+                 var respArray = respText.split('\n');
+                 var formattedArray = respArray.map(function formatter(index) {
+                   var firstchar = index.charCodeAt(0) ;
+                   var result = index.substring(2);
+                   if(firstchar===1) {
+                     result = '<div class="stdout">STDOUT:' + result + '</div>';
+                   } else if(firstchar===2) {
+                     result = '<div class="stdout">STDERR:' + result + '</div>';
+                   }
+                   return result;
+                 });
+                 return(formattedArray.join(''));
+               }
+             },
+             'containercommand');
+
   addCommand('start',
              'Starts a container',
              function(container) {

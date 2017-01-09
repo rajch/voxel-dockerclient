@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-debug": "browserify --debug client/main.js -o public/js/client.js"
+    "build-debug": "browserify --debug client/main.js -o public/js/client.js",
+    "build-docker": "docker build -t vdclient .",
+    "run-docker": "docker run --rm --name vdc1 -h vdc1 -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 vdclient"
   },
   "repository": {
     "type": "git",

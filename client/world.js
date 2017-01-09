@@ -23,7 +23,7 @@ var dockerworld = function(opts) {
 
   var cc = new ContainerCollection(thisworld);
   var commands = new Commands(thisworld);
-  var apiclient = new ApiClient();
+  var apiclient = new ApiClient('/api/');
 
   opts = opts || {};
   opts.texturePath = opts.texturePath || 'textures/';

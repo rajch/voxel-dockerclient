@@ -1,3 +1,5 @@
+var Terminal = require('xterm');
+
 /** Voxel-Dockerclient commands
  *  @constructor
  */
@@ -113,22 +115,77 @@ function commands(world)
                    {},
                    function(){},
                    function(){},
-                   function onLogsProgress(event) { dialog.html(formatResponse(event.currentTarget.responseText) + '</pre>'); });
-                   
-               function formatResponse(respText) {
+                   function onLogsProgress(event) { dialog.html(formatResponse(event.currentTarget.responseText)); });
+
+               function formatResponse(respText)
+               {
                  var respArray = respText.split('\n');
                  var formattedArray = respArray.map(function formatter(index) {
-                   var firstchar = index.charCodeAt(0) ;
+                   var firstchar = index.charCodeAt(0);
                    var result = index.substring(2);
-                   if(firstchar===1) {
+                   if(firstchar === 1) {
                      result = '<div class="stdout">STDOUT:' + result + '</div>';
-                   } else if(firstchar===2) {
+                   } else if(firstchar === 2) {
                      result = '<div class="stdout">STDERR:' + result + '</div>';
                    }
                    return result;
                  });
-                 return(formattedArray.join(''));
+                 return (formattedArray.join(''));
                }
+             },
+             'containercommand');
+
+  addCommand('attach',
+             'Attaches to a container',
+             function logsCommand(container) {
+               var dialog = world.dialog();
+
+               var dialog = world.dialog();
+               dialog.heading('Attaching to ' + container.name());
+               dialog.html('<div id="vdc-console" tabindex="0" ></div>');
+               dialog.open();
+
+               var termcontainer = document.querySelector('.docker-dialog-content .content');
+               var terminal = new Terminal();
+
+               terminal.open(termcontainer);
+
+               var wsUri = "ws://" + window.location.host + "/websocket/containers/" + container.name() +
+                           "/attach/ws?logs=0&stderr=1&stdout=1&stream=1&stdin=1";
+
+               var websocket = new WebSocket(wsUri);
+               websocket.onopen = function(evt) { onOpen(evt) };
+               websocket.onclose = function(evt) { onClose(evt) };
+               websocket.onmessage = function(evt) { onMessage(evt) };
+               websocket.onerror = function(evt) { onError(evt) };
+
+               //term.on('data', function(data) { websocket.send(data); });
+
+               function onOpen(evt)
+               {
+                 terminal.write("Session started");
+               }
+
+               function onClose(evt)
+               {
+                 terminal.writeln("Session terminated");
+                 dialog.close();
+                 delete terminal;
+                 delete websocket;
+               }
+
+               function onMessage(evt)
+               {
+                 terminal.write(evt.data);
+               }
+
+               function onError(evt)
+               {
+                 terminal.writeln('ERROR:' + evt.data);
+               }
+
+               terminal.on('data', function(data) { websocket.send(data); });
+
              },
              'containercommand');
 

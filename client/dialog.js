@@ -19,7 +19,7 @@ function dialog(world)
 
   var frame;
   var messageHandler;
-
+  
   opts.contents = [box];
 
   var modaldialog = new ModalDialog(world.game(), opts);
@@ -76,7 +76,7 @@ function dialog(world)
       postMessage(initialmessage);
     };
   };
-
+  
   function postMessage(message)
   {
     if(frame) {
@@ -134,6 +134,7 @@ function dialog(world)
    *  @param {object} message - The message to be sent to the iframe. Object - {message:'', data:{} }
    */
   this.postMessage = postMessage;
+  
 }
 
 module.exports = dialog;

@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build-public": "copyfiles -f node_modules/xterm/dist/xterm.js public/js && copyfiles -f node_modules/xterm/dist/xterm.css public/css",
     "build-debug": "browserify --debug client/main.js -o public/js/client.js",
     "build-docker": "docker build -t vdclient .",
     "build-all": "npm run build-debug && npm run build-docker",
@@ -39,6 +40,7 @@
     "xterm": "^2.2.3"
   },
   "devDependencies": {
-    "browserify": "^13.3.0"
+    "browserify": "^13.3.0",
+    "copyfiles": "^1.0.0"
   }
 }

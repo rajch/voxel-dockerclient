@@ -41,10 +41,10 @@ function apiclient(baseurl)
     get('/containers/json', opts, successHandler, errorHandler);
   };
 
-  this.createcontainer = function(opts, successHandler, errorHandler) {
+  this.createcontainer = function(name, opts, successHandler, errorHandler) {
     opts = opts || { image : debian, tty : true };
 
-    post('/containers/create', opts, successHandler, errorHandler);
+    post('/containers/create?name=' + name, opts, successHandler, errorHandler);
   };
 
   this.inspectcontainer = function(name, opts, successHandler, errorHandler) {

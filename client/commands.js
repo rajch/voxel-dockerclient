@@ -139,7 +139,8 @@ function commands(world)
                var dialog = world.dialog();
 
                dialog.heading('Attaching to ' + container.name());
-               dialog.iframe('terminaldialog.html', { "message" : 'init', data : container.name() }, onAttachDialogMessage);
+               dialog.iframe(
+                   'terminaldialog.html', { "message" : 'init', data : container.name() }, onAttachDialogMessage);
                dialog.open();
 
                function onAttachDialogMessage(event)
@@ -253,7 +254,16 @@ function commands(world)
                 // Command should be a whitespace-split Go array.
                 createparams.Cmd = createparams.Cmd.split(' ');
               }
+              // Sanitize tty
+              if(createparams.Tty) {
+                createparams.AttachStdin = true;
+                createparams.AttachStdout = true;
+                createparams.AttachStderr = true;
+                createparams.OpenStdin = true;
+                createparams.StdinOnce = true;
+              }
               world.apiClient.createcontainer(
+                  createparams.name,
                   createparams, // { Image : 'debian', Tty : true, Cmd : ['/bin/bash'], name : 'Lovely_Chitra' }
                   function onContainerCreate(success) {
                     dialog.close();

@@ -200,16 +200,19 @@ var dockercontainercollection = function(world) {
 
   function addContainerToWorld(containername, dockerdata)
   {
-    if(containernames[containername])
+    var citem;
+    if(containernames[containername]) {
       throw new Error('A container called ' + containername + ' already exists.');
-    var citem = new Container(world, containername, dockerdata, getNextContainerPosition());
-
-    containernames[containername] = containers.push(citem) - 1; // Array.push returns length of array
-
-    if(nextcontainerposition.length === 1) {
-      nextcontainerposition[0] += CPADDEDWIDTH;
     } else {
-      nextcontainerposition.pop();
+      citem = new Container(world, containername, dockerdata, getNextContainerPosition());
+
+      containernames[containername] = containers.push(citem) - 1; // Array.push returns length of array
+
+      if(nextcontainerposition.length === 1) {
+        nextcontainerposition[0] += CPADDEDWIDTH;
+      } else {
+        nextcontainerposition.pop();
+      }
     }
 
     return citem;

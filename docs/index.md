@@ -25,6 +25,8 @@ Open the command console, and try the commands. Currently, the following command
 |top|Shows processes running in a container|
 |start|Starts a container|
 |stop|Stops a container|
+|logs|Shows a container's logs|
+|attach|Attaches a terminal to an interactive container|
 |go|Takes player to a container, or to the first or last container. Type go home if you get lost.|
 |remove|Deletes a container|
 |create|Creates a container|
@@ -43,3 +45,6 @@ Activity performed in other clients, such as the official docker client, will no
 
 The `go` command can be used to teleport the player to a particular container, using the syntax `go <containername>`. `go home` will teleport to the first (oldest) container. `go nextslot` will teleport to the spot where the next new container will appear. 
 
+The `logs` command shows a container's logs, if available.
+
+The `attach` command opens a terminal attached to the main process of a container. You can press Ctrl+L to refresh the terminal, and Ctrl+P, Ctrl+Q to detach the terminal.

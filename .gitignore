@@ -49,5 +49,5 @@ typings
 *.workspace
 .codelite
 
-# public/js/client.js (it gets built)
-public/js/client.js
+# public/js/client.js (it gets built)(but needs to be included for docker)
+# public/js/client.js

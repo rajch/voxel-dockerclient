@@ -24,7 +24,7 @@ function commands(world)
     return newCommand;
   }
 
-  function removeComand(name)
+  function removeCommand(name)
   {
     name = name.toLowerCase();
     delete commands[name];
@@ -346,11 +346,11 @@ function commands(world)
    *  @method
    *  @param {string} name - Name of the command to remove
    */
-  this.remove = removeComand;
+  this.remove = removeCommand;
 
   /** Execute a command
    *  @method
-   *  @param {string} name - Name of the command to executeCommand
+   *  @param {string} name - Name of the command to execute
    *  @param {any} arguments - Arguments to pass to a command. No checks are done at this point
    */
   this.execute = executeCommand;

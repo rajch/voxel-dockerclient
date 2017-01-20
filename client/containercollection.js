@@ -176,7 +176,7 @@ var dockercontainercollection = function(world) {
   var containers = [];
   var containernames = {};
 
-  var nextcontainerposition = [0];
+  var nextcontainerordinal = [0];
 
   function clearContainers()
   {
@@ -185,7 +185,7 @@ var dockercontainercollection = function(world) {
 
     containers = [];
     containernames = {};
-    nextcontainerposition = [0];
+    nextcontainerordinal = [0];
   }
 
   function getContainerOrdinalFromX(x)
@@ -193,9 +193,14 @@ var dockercontainercollection = function(world) {
     return Math.trunc((x - CONTAINERORIGIN[0]) / 4);
   }
 
+  function getNextContainerOrdinal()
+  {
+    return nextcontainerordinal[nextcontainerordinal.length - 1];
+  }
+
   function getNextContainerPosition()
   {
-    return nextcontainerposition[nextcontainerposition.length - 1];
+    return getNextContainerOrdinal() * CPADDEDWIDTH;
   };
 
   function addContainerToWorld(containername, dockerdata)
@@ -206,13 +211,15 @@ var dockercontainercollection = function(world) {
     } else {
       citem = new Container(world, containername, dockerdata, getNextContainerPosition());
 
-      containernames[containername] = containers.push(citem) - 1; // Array.push returns length of array
-
-      if(nextcontainerposition.length === 1) {
-        nextcontainerposition[0] += CPADDEDWIDTH;
+      var nextOrdinal = getNextContainerOrdinal();
+      containers[nextOrdinal] = citem;
+      containernames[containername] = nextOrdinal; 
+      
+      if(nextcontainerordinal.length === 1) {
+        nextcontainerordinal[0] += 1;
       } else {
-        nextcontainerposition.pop();
-      }
+        nextcontainerordinal.pop();
+      }      
     }
 
     return citem;
@@ -228,9 +235,9 @@ var dockercontainercollection = function(world) {
     var destroyedpos = citem.destroy();
 
     if(itemindex === (containernames.length - 1)) {
-      nextcontainerposition[0] -= CPADDEDWIDTH;
+      nextcontainerordinal[0] -= 1;
     } else {
-      nextcontainerposition.push(destroyedpos);
+      nextcontainerordinal.push(itemindex);
     }
 
     containers[itemindex] = undefined;

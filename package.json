@@ -9,7 +9,8 @@
     "build-debug": "browserify --debug client/main.js -o public/js/client.js",
     "build-docker": "docker build -t voxel-dockerclient .",
     "build-all": "npm run build-public && npm run build-debug && npm run build-docker",
-    "run-docker": "docker run --rm --name vdc1 -h vdc1 -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 voxel-dockerclient"
+    "run-docker": "docker run --rm --name vdc1 -h vdc1 -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 voxel-dockerclient",
+    "standard": "standard client/**"
   },
   "repository": {
     "type": "git",
@@ -41,6 +42,7 @@
   },
   "devDependencies": {
     "browserify": "^13.3.0",
-    "copyfiles": "^1.0.0"
+    "copyfiles": "^1.0.0",
+    "standard": "^10.0.2"
   }
 }

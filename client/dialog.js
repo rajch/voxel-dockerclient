@@ -1,125 +1,118 @@
-var ModalDialog = require('voxel-modal-dialog');
+var ModalDialog = require('voxel-modal-dialog')
 
 /** The modal dialog shown in voxel-dockerclient
  *  @constructor
  *  @param {world} world - The voxel-dockerclient world object
  */
-function dialog(world)
-{
-  var opts = {};
-  var box = document.createElement('div');
-  box.className = 'docker-dialog-content';
+function dialog (world) {
+  var opts = {}
+  var box = document.createElement('div')
+  box.className = 'docker-dialog-content'
 
-  var headingelement = document.createElement('h2');
-  box.appendChild(headingelement);
+  var headingelement = document.createElement('h2')
+  box.appendChild(headingelement)
 
-  var innerbox = document.createElement('div');
-  innerbox.className = 'content';
-  box.appendChild(innerbox);
+  var innerbox = document.createElement('div')
+  innerbox.className = 'content'
+  box.appendChild(innerbox)
 
-  var frame;
-  var messageHandler;
-  
-  opts.contents = [box];
+  var frame
+  var messageHandler
 
-  var modaldialog = new ModalDialog(world.game(), opts);
+  opts.contents = [box]
 
-  function open()
-  {
-    var parentElement = world.options().parentElement;
-    var width = parentElement.clientWidth * 0.8;
-    var height = parentElement.clientHeight * 0.8;
+  var modaldialog = new ModalDialog(world.game(), opts)
 
-    box.style.width = width + "px";
-    box.style.height = height + "px";
+  function open () {
+    var parentElement = world.options().parentElement
+    var width = parentElement.clientWidth * 0.8
+    var height = parentElement.clientHeight * 0.8
 
-    modaldialog.open();
+    box.style.width = width + 'px'
+    box.style.height = height + 'px'
+
+    modaldialog.open()
   }
 
-  function close()
-  {
-    clean();
-    modaldialog.close();
+  function close () {
+    clean()
+    modaldialog.close()
   }
 
-  function heading(text)
-  {
-    if(text) {
-      headingelement.innerText = text;
+  function heading (text) {
+    if (text) {
+      headingelement.innerText = text
     }
-    return headingelement.innerText;
+    return headingelement.innerText
   }
 
-  function html(arg)
-  {
-    if(arg) {
-      clean();
-      innerbox.innerHTML = arg;
-      innerbox.classList.add('fill');
+  function html (arg) {
+    if (arg) {
+      clean()
+      innerbox.innerHTML = arg
+      innerbox.classList.add('fill')
     }
 
-    return innerbox.innerHTML;
+    return innerbox.innerHTML
   }
 
-  function iframe(src, initialmessage, messagehandler)
-  {
-    clean();
+  function iframe (src, initialmessage, messagehandler) {
+    clean()
 
-    frame = document.createElement('iframe');
-    innerbox.appendChild(frame);
+    frame = document.createElement('iframe')
+    innerbox.appendChild(frame)
 
-    frame.src = src;
-    messageHandler = messagehandler;
-    frame.onload = function onDialogIframeLoaded() {
-      window.addEventListener('message', messageHandler, false);
+    frame.src = src
+    messageHandler = messagehandler
+    frame.onload = function onDialogIframeLoaded () {
+      window.addEventListener('message', messageHandler, false)
 
-      postMessage(initialmessage);
-    };
+      postMessage(initialmessage)
+    }
   };
-  
-  function postMessage(message)
-  {
-    if(frame) {
-      frame.contentWindow.postMessage(message, '*');
+
+  function postMessage (message) {
+    if (frame) {
+      frame.contentWindow.postMessage(message, '*')
     }
   }
 
-  function clean()
-  {
-    if(frame) {
-      if(frame.parentElement) {
-        frame.parentElement.removeChild(frame);
+  function clean () {
+    if (frame) {
+      if (frame.parentElement) {
+        frame.parentElement.removeChild(frame)
       }
-      delete frame;
-      window.removeEventListener('message', messageHandler, false);
+      // delete frame;
+      frame = undefined
+      window.removeEventListener('message', messageHandler, false)
     }
-    innerbox.innerHTML = '';
-    innerbox.classList.remove('fill');
+    innerbox.innerHTML = ''
+    innerbox.classList.remove('fill')
   }
 
   /** Opens the dialog
    *  @method
    */
-  this.open = open;
+  this.open = open
 
   /** Closes the dialog
    *  @method
    */
-  this.close = close;
+  this.close = close
 
   /** Sets of returns the heading of the dialog.
    *  @method
    *  @param {string} text - The text of the heading.
    *  @returns {string} - The text of the heading.
    */
-  this.heading = heading;
+  this.heading = heading
 
   /** Sets or returns the HTML shown in the dialog. Setting clears any prior content.
    *  @method
    *  @param {string} args - Valid HTML or text. If not passed, HTML will be returned.
    *  @returns {string} html - The existing contents of the dialog.
    */
-  this.html = html;
+  this.html = html
 
   /** Creates and loads an iframe inside the dialog. This clears any prior content.
    *  @method
@@ -127,14 +120,13 @@ function dialog(world)
    *  @param {object} initialmessage - The message to be sent to the iframe. Object - {message:'', data:{} }
    *  @param {function} messageHandler - The handler that will receive messages from the iframe
    */
-  this.iframe = iframe;
+  this.iframe = iframe
 
   /** Posts a message to the current iframe in the dialog, if any
    *  @method
    *  @param {object} message - The message to be sent to the iframe. Object - {message:'', data:{} }
    */
-  this.postMessage = postMessage;
-  
+  this.postMessage = postMessage
 }
 
-module.exports = dialog;
+module.exports = dialog

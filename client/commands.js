@@ -1,307 +1,291 @@
+var CONTAINERSTATE = require('./containerstate')
+
 /** Voxel-Dockerclient commands
  *  @constructor
+ *  @param {module:world~world} world
  */
-function commands(world)
-{
-  var commands = {};
+function commands (world) {
+  var commands = {}
 
-  /** Voxel-Dockerclient command. 'this' evaluates to world
+  /** Voxel-Dockerclient command. 'this' evaluates to world in the action parameter
    *  @constructor
    */
-  function Command(name, description, action, commandtype)
-  {
-    this.name = function() { return name };
-    this.execute = function(arguments) { action.call(world, arguments); };
-    this.description = description;
-    this.commandType = commandtype;
+  function Command (name, description, action, commandtype) {
+    this.name = function () { return name }
+    this.execute = function (args) { action.call(world, args) }
+    this.description = description
+    this.commandType = commandtype
   }
 
-  function addCommand(name, description, action, commandType)
-  {
-    name = name.toLowerCase();
-    var newCommand = new Command(name, description, action, commandType);
-    commands[name] = newCommand;
-    return newCommand;
+  function addCommand (name, description, action, commandType) {
+    name = name.toLowerCase()
+    var newCommand = new Command(name, description, action, commandType)
+    commands[name] = newCommand
+    return newCommand
   }
 
-  function removeCommand(name)
-  {
-    name = name.toLowerCase();
-    delete commands[name];
+  function removeCommand (name) {
+    name = name.toLowerCase()
+    delete commands[name]
   }
 
-  function executeCommand(name, arguments)
-  {
-    name = name.toLowerCase();
-    commands[name].execute(arguments);
+  function executeCommand (name, args) {
+    name = name.toLowerCase()
+    commands[name].execute(args)
   }
 
-  function getCommand(name)
-  {
-    name = name.toLowerCase();
-    return commands[name];
+  function getCommand (name) {
+    name = name.toLowerCase()
+    return commands[name]
   }
 
-  function onRequestError(errordata)
-  {
-    if(errordata && errordata.response && errordata.response.statusText) {
-      world.logError("Error:" + errordata.response.statusText);
+  function onRequestError (errordata) {
+    if (errordata && errordata.response && errordata.response.statusText) {
+      world.logError('Error:' + errordata.response.statusText)
     } else {
-      world.logError("Error:" + errordata);
+      world.logError('Error:' + errordata)
     }
   }
 
   // Set up built-in commands
   addCommand('help',
              'Shows all available commands',
-             function helpCommand(args) {
-               var helpHeader = [ 'Command', 'Description' ];
-               var helpBody = [];
-               for(var cn in commands) {
-                 helpBody.push([ cn, commands[cn].description ]);
+             function helpCommand (args) {
+               var helpHeader = [ 'Command', 'Description' ]
+               var helpBody = []
+               for (var cn in commands) {
+                 helpBody.push([ cn, commands[cn].description ])
                }
-               var dialog = world.dialog();
-               dialog.heading('Available commands');
-               dialog.html(world.tablify({ header : helpHeader, body : helpBody }));
-               dialog.open();
+               var dialog = world.dialog()
+               dialog.heading('Available commands')
+               dialog.html(world.tablify({ header: helpHeader, body: helpBody }))
+               dialog.open()
              },
-             'generalcommand');
+             'generalcommand')
 
   addCommand('inspect',
              'Inspects a container',
-             function inpectCommand(container) {
-               container.inspect(function inspectSuccess(success) {
-                 var dialog = world.dialog();
-                 dialog.heading('Inspecting ' + container.name());
-                 dialog.html('<pre>' + JSON.stringify(success.data, null, '\t') + '</pre>');
-                 dialog.open();
-
-               }, onRequestError);
+             function inpectCommand (container) {
+               container.inspect(function inspectSuccess (success) {
+                 var dialog = world.dialog()
+                 dialog.heading('Inspecting ' + container.name())
+                 dialog.html('<pre>' + JSON.stringify(success.data, null, '\t') + '</pre>')
+                 dialog.open()
+               }, onRequestError)
              },
-             'containercommand');
+             'containercommand')
 
   addCommand('top',
              'Shows processes running in a container',
-             function topCommand(container) {
-               var containerState = container.getState();
-               if(containerState === CONTAINERSTATE.running || containerState === CONTAINERSTATE.paused) {
-                 container.top(function topSuccess(success) {
-                   var dialog = world.dialog();
-                   dialog.heading('Processes running in ' + container.name());
-                   dialog.html(world.tablify({ header : success.data.Titles, body : success.data.Processes }));
-                   dialog.open();
-
-                 }, onRequestError);
+             function topCommand (container) {
+               var containerState = container.getState()
+               if (containerState === CONTAINERSTATE.running || containerState === CONTAINERSTATE.paused) {
+                 container.top(function topSuccess (success) {
+                   var dialog = world.dialog()
+                   dialog.heading('Processes running in ' + container.name())
+                   dialog.html(world.tablify({ header: success.data.Titles, body: success.data.Processes }))
+                   dialog.open()
+                 }, onRequestError)
                } else {
-                 world.logUsage('The top command only works with running containers.');
+                 world.logUsage('The top command only works with running containers.')
                }
              },
-             'containercommand');
+             'containercommand')
 
   addCommand('logs',
              'Shows container logs',
-             function logsCommand(container) {
-               var dialog = world.dialog();
-
-               var dialog = world.dialog();
-               dialog.heading('Showing logs of ' + container.name());
-               dialog.html('No logs yet.');
-               dialog.open();
+             function logsCommand (container) {
+               var dialog = world.dialog()
+               dialog.heading('Showing logs of ' + container.name())
+               dialog.html('No logs yet.')
+               dialog.open()
 
                world.apiClient.logscontainer(
                    container.name(),
                    {},
-                   function(){},
-                   function(){},
-                   function onLogsProgress(event) { dialog.html(formatResponse(event.currentTarget.responseText)); });
+                   function () {},
+                   function () {},
+                   function onLogsProgress (event) { dialog.html(formatResponse(event.currentTarget.responseText)) })
 
-               function formatResponse(respText)
-               {
-                 var respArray = respText.split('\n');
-                 var formattedArray = respArray.map(function formatter(index) {
-                   var firstchar = index.charCodeAt(0);
-                   var result = index.substring(2);
-                   if(firstchar === 1) {
-                     result = '<div class="stdout">STDOUT:' + result + '</div>';
-                   } else if(firstchar === 2) {
-                     result = '<div class="stdout">STDERR:' + result + '</div>';
+               function formatResponse (respText) {
+                 var respArray = respText.split('\n')
+                 var formattedArray = respArray.map(function formatter (index) {
+                   var firstchar = index.charCodeAt(0)
+                   var result = index.substring(2)
+                   if (firstchar === 1) {
+                     result = '<div class="stdout">STDOUT:' + result + '</div>'
+                   } else if (firstchar === 2) {
+                     result = '<div class="stdout">STDERR:' + result + '</div>'
                    }
-                   return result;
-                 });
-                 return (formattedArray.join(''));
+                   return result
+                 })
+                 return (formattedArray.join(''))
                }
              },
-             'containercommand');
+             'containercommand')
 
   addCommand('attach',
              'Attaches to a container',
-             function attachCommand(container) {
-               var dialog = world.dialog();
+             function attachCommand (container) {
+               var dialog = world.dialog()
 
-               dialog.heading('Attaching to ' + container.name());
+               dialog.heading('Attaching to ' + container.name())
                dialog.iframe(
-                   'terminaldialog.html', { "message" : 'init', data : container.name() }, onAttachDialogMessage);
-               dialog.open();
+                   'terminaldialog.html', { 'message': 'init', data: container.name() }, onAttachDialogMessage)
+               dialog.open()
 
-               function onAttachDialogMessage(event)
-               {
-                 if(event.data.message === 'cancel') {
-                   dialog.close();
+               function onAttachDialogMessage (event) {
+                 if (event.data.message === 'cancel') {
+                   dialog.close()
                  }
                }
-
              },
-             'containercommand');
+             'containercommand')
 
   addCommand('start',
              'Starts a container',
-             function(container) {
-               var containerState = container.getState();
-               if(containerState === CONTAINERSTATE.created || containerState === CONTAINERSTATE.exited) {
-                 container.start(function startSuccess(successdata) { world.log(container.getState()); },
-                                 onRequestError);
+             function (container) {
+               var containerState = container.getState()
+               if (containerState === CONTAINERSTATE.created || containerState === CONTAINERSTATE.exited) {
+                 container.start(function startSuccess (successdata) { world.log(container.getState()) },
+                                 onRequestError)
                } else {
-                 world.logUsage('The start command only starts stopped containers.');
+                 world.logUsage('The start command only starts stopped containers.')
                }
              },
-             'containercommand');
+             'containercommand')
 
   addCommand('stop',
              'Stops a container',
-             function(container) {
-               if(container.getState() === CONTAINERSTATE.running) {
-                 container.stop(function stopSuccess(successdata) { world.log(container.getState()); }, onRequestError);
+             function (container) {
+               if (container.getState() === CONTAINERSTATE.running) {
+                 container.stop(function stopSuccess (successdata) { world.log(container.getState()) }, onRequestError)
                } else {
-                 world.logUsage('The stop command can only stop a running container.');
+                 world.logUsage('The stop command can only stop a running container.')
                }
              },
-             'containercommand');
+             'containercommand')
 
   addCommand('go',
              'Takes player to a container, or to the first or last container. Type go home if you get lost.',
-             function goCommand(arguments) {
-               var player = world.player();
-               if(arguments.length > 1) {
-                 var arg = arguments[1];
-                 switch(arg) {
-                 case 'home':
-                   player.gohome();
-                   break;
-                 case 'nextslot':
-                   player.gotonextslot();
-                   break;
-                 default:
-                   player.moveToContainer(arg);
-                   break;
+             function goCommand (args) {
+               var player = world.player()
+               if (args.length > 1) {
+                 var arg = args[1]
+                 switch (arg) {
+                   case 'home':
+                     player.gohome()
+                     break
+                   case 'nextslot':
+                     player.gotonextslot()
+                     break
+                   default:
+                     player.moveToContainer(arg)
+                     break
                  }
                } else {
-                 world.logUsage("Usage: go home or go nextslot or go <containername>");
+                 world.logUsage('Usage: go home or go nextslot or go <containername>')
                }
              },
-             'generalcommand');
+             'generalcommand')
 
   addCommand('remove',
              'Deletes a container',
-             function removeCommand(container) {
-
-               var containerState = container.getState();
-               if(containerState === CONTAINERSTATE.created || containerState === CONTAINERSTATE.exited) {
-                 var containername = container.name();
+             function removeCommand (container) {
+               var containerState = container.getState()
+               if (containerState === CONTAINERSTATE.created || containerState === CONTAINERSTATE.exited) {
+                 var containername = container.name()
                  world.apiClient.removecontainer(containername,
                                                  {},
-                                                 function removeSuccess() {
-                                                   world.containers.remove(containername);
-                                                   world.log('Container ' + containername + ' removed.');
+                                                 function removeSuccess () {
+                                                   world.containers.remove(containername)
+                                                   world.log('Container ' + containername + ' removed.')
                                                  },
-                                                 onRequestError);
+                                                 onRequestError)
                } else {
-                 world.logUsage('Only stopped or freshly created containers can be removed.');
+                 world.logUsage('Only stopped or freshly created containers can be removed.')
                }
              },
-             'containercommand');
+             'containercommand')
 
   addCommand(
       'create',
       'Creates a container',
-      function createCommand(container) {
-        var dialog = world.dialog();
+      function createCommand (container) {
+        var dialog = world.dialog()
 
         world.apiClient.listimages(
             {},
-            function createSuccess(success) {
-              var dialog = world.dialog();
-              dialog.heading('Create a new container');
-              dialog.iframe('createdialog.html', { "message" : 'init', data : success.data }, onCreateDialogMessage);
-              dialog.open();
-
+            function createSuccess (success) {
+              var dialog = world.dialog()
+              dialog.heading('Create a new container')
+              dialog.iframe('createdialog.html', { 'message': 'init', data: success.data }, onCreateDialogMessage)
+              dialog.open()
             },
-            onRequestError);
+            onRequestError)
 
-        function onCreateDialogMessage(event)
-        {
-          if(event.data.message === 'cancel') {
-            dialog.close();
-          } else if(event.data.message === 'verifyname') {
-            verifynameavailable(event.data.name);
-          } else if(event.data.message === 'create') {
-            var createparams = event.data.data;
-            if(verifynameavailable(createparams.name)) {
+        function onCreateDialogMessage (event) {
+          if (event.data.message === 'cancel') {
+            dialog.close()
+          } else if (event.data.message === 'verifyname') {
+            verifynameavailable(event.data.name)
+          } else if (event.data.message === 'create') {
+            var createparams = event.data.data
+            if (verifynameavailable(createparams.name)) {
               // Sanitize command
-              if(createparams.Cmd === '') {
+              if (createparams.Cmd === '') {
                 // Do not pass empty command
-                delete createparams.Cmd;
+                delete createparams.Cmd
               } else {
                 // Command should be a whitespace-split Go array.
-                createparams.Cmd = createparams.Cmd.split(' ');
+                createparams.Cmd = createparams.Cmd.split(' ')
               }
               // Sanitize tty
-              if(createparams.Tty) {
-                createparams.AttachStdin = true;
-                createparams.AttachStdout = true;
-                createparams.AttachStderr = true;
-                createparams.OpenStdin = true;
-                createparams.StdinOnce = true;
+              if (createparams.Tty) {
+                createparams.AttachStdin = true
+                createparams.AttachStdout = true
+                createparams.AttachStderr = true
+                createparams.OpenStdin = true
+                createparams.StdinOnce = true
               }
               world.apiClient.createcontainer(
                   createparams.name,
                   createparams, // { Image : 'debian', Tty : true, Cmd : ['/bin/bash'], name : 'Lovely_Chitra' }
-                  function onContainerCreate(success) {
-                    dialog.close();
+                  function onContainerCreate (success) {
+                    dialog.close()
                     world.containers.add(createparams.name,
-                                         { State : 'created', Image : createparams.Image, Command : createparams.Cmd })
-                        .redraw();
-                    world.log('Container ' + createparams.name + ' created.');
+                                         { State: 'created', Image: createparams.Image, Command: createparams.Cmd })
+                        .redraw()
+                    world.log('Container ' + createparams.name + ' created.')
                   },
-                  function onContainerCreateError(err) {
-                    dialog.close();
-                    onRequestError(err);
-                  });
+                  function onContainerCreateError (err) {
+                    dialog.close()
+                    onRequestError(err)
+                  })
             }
           }
         }
 
-        function verifynameavailable(name)
-        {
-          var result = true;
-          if(world.containers.getContainer(name)) {
-            dialog.postMessage({ message : 'containerexists', data : { name : name } });
-            result = false;
+        function verifynameavailable (name) {
+          var result = true
+          if (world.containers.getContainer(name)) {
+            dialog.postMessage({ message: 'containerexists', data: { name: name } })
+            result = false
           }
-          return result;
+          return result
         }
-
       },
-      'generalcommand');
+      'generalcommand')
 
   addCommand(
       'welcome',
       'Shows the welcome message',
-      function welcomeCommand() {
-        var dialog = world.dialog();
-        dialog.heading('Welcome to voxel-dockerclient');
+      function welcomeCommand () {
+        var dialog = world.dialog()
+        dialog.heading('Welcome to voxel-dockerclient')
         var welcomecontent = {
-          header : [ 'Use', 'To' ],
-          body : [
+          header: [ 'Use', 'To' ],
+          body: [
             [ 'your mouse', 'look around' ],
             [ 'W,A,S,D keys', 'move in the four directions' ],
             [ 'space bar', 'jump. Tap twice to start flying. When flying, the space bar will take you higher.' ],
@@ -318,19 +302,19 @@ function commands(world)
             ],
             [ '', "That's it. Have fun." ]
           ]
-        };
-        dialog.html(world.tablify(welcomecontent));
-        dialog.open();
+        }
+        dialog.html(world.tablify(welcomecontent))
+        dialog.open()
       },
-      'generalcommand');
+      'generalcommand')
 
   addCommand(
-      'refresh', 'Re-fetches container list', function refreshCommand(args) { world.refresh(); }, 'generalcommand');
+      'refresh', 'Re-fetches container list', function refreshCommand (args) { world.refresh() }, 'generalcommand')
 
   addCommand('restart',
              'Restarts voxel-dockerclient. Use as a last resort.',
-             function refreshCommand(args) { window.location.reload(); },
-             'generalcommand');
+             function refreshCommand (args) { window.location.reload() },
+             'generalcommand')
 
   /** Add a command
    *  @method
@@ -340,26 +324,26 @@ function commands(world)
    *  @param {string} commandType - The type of command. 'containercommand' gets a container as parameter. All otheres
    * get an argument array.
    */
-  this.add = addCommand;
+  this.add = addCommand
 
   /** Remove a command
    *  @method
    *  @param {string} name - Name of the command to remove
    */
-  this.remove = removeCommand;
+  this.remove = removeCommand
 
   /** Execute a command
    *  @method
    *  @param {string} name - Name of the command to execute
    *  @param {any} arguments - Arguments to pass to a command. No checks are done at this point
    */
-  this.execute = executeCommand;
+  this.execute = executeCommand
 
   /** Get a command
    *  @method
    *  @param {string} name - Name of command to get
    */
-  this.get = getCommand;
+  this.get = getCommand
 }
 
-module.exports = commands;
+module.exports = commands

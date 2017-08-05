@@ -1,6 +1,6 @@
 {
   "name": "voxel-dockerclient",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "An experimental minecraft-like docker client, built using voxel.js.",
   "main": "server.js",
   "scripts": {

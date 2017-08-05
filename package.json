@@ -13,7 +13,7 @@
     "build-docker-nginx": "docker build -f nginxconf/Dockerfile -t voxel-dockerclient:nginx .",
     "build-all": "npm run build-public && npm run build-client-debug && npm run build-server && npm run build-docker",
     "build-all-release": "npm run build-public && npm run build-client-release && npm run build-server && npm run build-docker",
-    "run-docker": "docker run --rm --name vdc1 -h vdc1 -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 voxel-dockerclient:goserver",
+    "run-docker": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -p 8080:80 voxel-dockerclient:goserver",
     "standard": "standard client/**"
   },
   "repository": {

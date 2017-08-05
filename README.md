@@ -8,8 +8,7 @@ The dockercraft project turns the official Minecraft client into a docker client
 voxel-dockerclient is not a serious tool for working with docker. It's a fun project (which may grow up to be a teaching aid someday).
 
 > WARNING: Please use voxel-dockerclient on your local machine only.
-> It currently doesn't support authentication.
-> Every player should be considered a root user! 
+> It currently doesn't support any authentication. 
 
 ## How to run voxel-dockerclient
 ### Using the docker image
@@ -24,7 +23,7 @@ The easiest way is to pull the docker image, and run from that. The steps are as
 2. Run it with:
 
   ```
-  docker run -d --name vdc1 -p 5000:8080 -v /var/run/docker.sock:/var/run/docker.sock rajchaudhuri/voxel-dockerclient
+  docker run -d -p 5000:80 -v /var/run/docker.sock:/var/run/docker.sock rajchaudhuri/voxel-dockerclient
   ```
 
   > The  `-v /var/run/docker.sock:/var/run/docker.sock` is *very important*. 
@@ -40,15 +39,17 @@ The easiest way is to pull the docker image, and run from that. The steps are as
   ```
   and then browse to that IP address using the port that you mapped in step 2. E.g.: `http://192.17.22.1:5000`
 
-### Running with node.js
-Alternatively, if you have node.js installed on your docker host, you can clone the github repository, and build and run voxel-dockerclient yourself. The steps are:
+### Building with node.js and golang
+Alternatively, if you have node.js and golang installed on your docker host, you can clone the github repository, and build and run voxel-dockerclient yourself. The steps are:
 
-1. Clone the github repository with
+1. Clone the github repository into your Go workspace with:
 
   ```
+  mkdir -p "$GOPATH/src/github.com/rajch"
+  cd "$GOPATH/src/github.com/rajch"
   git clone https://github.com/rajch/voxel-dockerclient.git
   ```
-2. Run
+2. Change to the cloned directory and run
 
   ```
   npm install
@@ -63,8 +64,30 @@ Alternatively, if you have node.js installed on your docker host, you can clone 
 
 Your logged-in user needs to be a member of the `docker` group for this to work.
 
+### Building using docker only
+Finally, if you have docker 17.05 or above, you can clone the github repository and use the multi-stage-build Dockerfile 
+that is included. This will pull relevant node and golang images, and perform the build using those. The steps are:
+
+1. Clone the github repository with:
+
+```
+git clone https://github.com/rajch/voxel-dockerclient.git
+```
+2. Change to the cloned directory and run:
+```
+docker build -t voxel-dockerclient:local .
+```
+3. Run
+```
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8081:80 voxel-dockerclient:local
+```
+4. Browse to `http://localhost:8081`
+
+Your logged-in user needs to be a member of the `docker` group for this to work.
+
 ## How to use voxel-dockerclient
 Instructions are available [here](https://rajch.github.io/voxel-dockerclient/).
+
 ## Browser compatibility
 voxel-dockerclient has been tested using recent Chrome and Firefox browsers, on Linux and Windows. Regrettably (*I mean it. I actually like that old browser*), it does not work with Internet Explorer.
 
@@ -84,8 +107,9 @@ In the pipeline, further down, are:
 I don't really know how far I want to take this. I do want voxel-dockerclient to be complete, but I want to keep it simple. I may turn it into a teaching tool eventually.
 
 ## How does it work?
-~~On the server, voxel-dockerclient uses [Express](http://expressjs.com/) and the excellent [dockerode](https://github.com/apocas/dockerode) node module to provide a proxy for a subset of the Docker remote API.~~
-The voxel-dockerclient server is simply nginx, proxying the docker daemon's UNIX socket. At the moment, it proxies the full API with no authorization. This will change.
+~~On the server, voxel-dockerclient uses [Express](http://expressjs.com/) and the excellent [dockerode](https://github.com/apocas/dockerode) node module to provide a proxy for a subset of the Docker remote API.
+The voxel-dockerclient server is simply nginx, proxying the docker daemon's UNIX socket.~~
+The voxel-dockerclient server is a tiny golang program, which serves the client HTML/CSS/javascript, and provides a proxy for the docker API. At the moment, it proxies the full API with no authorization. This will change.
 
 On the client, it uses the brilliant [voxeljs](http://voxeljs.com/) family of node modules to render the UI, and the [axios](https://github.com/mzabriskie/axios) node module to communicate with the proxied API.
 

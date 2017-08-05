@@ -6,10 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-public": "copyfiles -f node_modules/xterm/dist/xterm.js public/js && copyfiles -f node_modules/xterm/dist/xterm.css public/css",
-    "build-debug": "browserify --debug client/main.js -o public/js/client.js",
-    "build-docker": "docker build -t voxel-dockerclient .",
-    "build-all": "npm run build-public && npm run build-debug && npm run build-docker",
-    "run-docker": "docker run --rm --name vdc1 -h vdc1 -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 voxel-dockerclient",
+    "build-client-debug": "browserify --debug client/main.js -o public/js/client.js",
+    "build-client-release": "browserify client/main.js -o public/js/client.js",
+    "build-server": "CGO_ENABLED='0' go build -o server/server github.com/rajch/voxel-dockerclient/server ",
+    "build-docker": "docker build -f server/Dockerfile -t voxel-dockerclient:goserver .",
+    "build-docker-nginx": "docker build -f nginxconf/Dockerfile -t voxel-dockerclient:nginx .",
+    "build-all": "npm run build-public && npm run build-client-debug && npm run build-server && npm run build-docker",
+    "build-all-release": "npm run build-public && npm run build-client-release && npm run build-server && npm run build-docker",
+    "run-docker": "docker run --rm --name vdc1 -h vdc1 -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 voxel-dockerclient:goserver",
     "standard": "standard client/**"
   },
   "repository": {

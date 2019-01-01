@@ -8,6 +8,9 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -78,9 +81,39 @@ func main() {
 
 	http.Handle("/", http.FileServer(http.Dir("../public")))
 
+	// Set up a custom server object
+	var srv http.Server
+
+	// Use a channel to signal server closure
+	serverClosed := make(chan struct{})
+
+	// Start a goroutine to listen for SIGTERM and SIGINT signals,
+	//   and close the server if received
+	go func() {
+		signalReceived := make(chan os.Signal, 1)
+
+		// Handle SIGINT
+		signal.Notify(signalReceived, os.Interrupt)
+		// Handle SIGTERM
+		signal.Notify(signalReceived, syscall.SIGTERM)
+
+		// Wait for signal
+		<-signalReceived
+
+		log.Println("Server shutting down...")
+		if err := srv.Shutdown(context.Background()); err != nil {
+			// Error from closing listeners, or context timeout:
+			log.Printf("Error during HTTP server Shutdown: %v", err)
+		}
+
+		close(serverClosed)
+	}()
+
+	// Start listening using the server
 	log.Println("Server starting...")
-	if err := http.ListenAndServe(":80", nil); err != nil {
+	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("The server failed with the following error:%v\n", err)
 	}
 
+	<-serverClosed
 }

@@ -14,6 +14,9 @@ import (
 )
 
 func main() {
+	// Temporary
+	currentSessions = make(map[string]session)
+
 	// Verify presence of docker socket
 	conn, err := net.Dial("unix", "/var/run/docker.sock")
 	if err != nil {
@@ -79,10 +82,24 @@ func main() {
 	// Keeping websockets separate simplifies the proxying
 	http.Handle("/websocket/", http.StripPrefix("/websocket", revWSProxy))
 
+	// Temporary
+	http.Handle("/verysecret/", authorize(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Secret secrets here."))
+	})))
+
+	// Temporary
+	http.Handle("/signin/", authenticate())
+
+	// Temporary
+	http.Handle("/signout/", signout())
+
 	http.Handle("/", http.FileServer(http.Dir("../public")))
 
 	// Set up a custom server object
 	var srv http.Server
+
+	// Temporary
+	srv.Addr = ":8080"
 
 	// Use a channel to signal server closure
 	serverClosed := make(chan struct{})

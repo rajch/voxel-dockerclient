@@ -76,22 +76,18 @@ func main() {
 		<-errc
 	})
 
-	http.Handle("/api/", http.StripPrefix("/api/", revProxy))
+	// Hook the patch /api to the docker api
+	http.Handle("/api/", authorize(http.StripPrefix("/api/", revProxy)))
 
 	// Hook the path /websocket to the docker api websockets
 	// Keeping websockets separate simplifies the proxying
 	http.Handle("/websocket/", http.StripPrefix("/websocket", revWSProxy))
 
-	// Temporary
-	http.Handle("/verysecret/", authorize(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Secret secrets here."))
-	})))
+	// Sign In route
+	http.Handle("/signin", signin())
 
-	// Temporary
-	http.Handle("/signin/", authenticate())
-
-	// Temporary
-	http.Handle("/signout/", signout())
+	// Log out
+	http.Handle("/signout", signout())
 
 	http.Handle("/", http.FileServer(http.Dir("../public")))
 
@@ -133,4 +129,6 @@ func main() {
 	}
 
 	<-serverClosed
+
+	log.Println("Server shut down.")
 }

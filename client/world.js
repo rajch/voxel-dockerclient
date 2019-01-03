@@ -119,6 +119,13 @@ var world = function (opts) {
         }
       },
       function listContainersError (error) {
+
+        // Check for unauthorized
+        if(error.response && error.response.status === 401) {
+          commands.execute('login')
+          return
+        }
+
         gameconsole.logError(error)
         gameconsole.logUsage(
           'If you are running this from a docker container, you probably forgot to map the docker socket as a volume. ' +

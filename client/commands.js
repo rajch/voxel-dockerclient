@@ -316,6 +316,26 @@ function commands (world) {
              function refreshCommand (args) { window.location.reload() },
              'generalcommand')
 
+  addCommand('login',
+             'Shows the login dialog',
+             function loginCommand() {
+              var dialog = world.dialog()
+
+              dialog.heading('Log in')
+              dialog.iframe(
+                  'logindialog.html', { 'message': 'init', data: '' }, onLoginDialogMessage)
+              dialog.open()
+
+              function onLoginDialogMessage (event) {
+                if (event.data.message === 'cancel') {
+                  dialog.close()
+                  
+                  world.refresh()
+                }
+              }
+             },
+             'generalcommand')
+
   /** Add a command
    *  @method
    *  @param {string} name - Name of the command

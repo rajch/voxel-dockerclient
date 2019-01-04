@@ -3,7 +3,7 @@
 
     function sendMessage(message) {
         if (sourceWindow) {
-            sourceWindow.postMessage(message, window);
+            sourceWindow.postMessage(message, '*');
         }
     }
     // Nothing to do, here, except close the dialog box

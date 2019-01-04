@@ -67,36 +67,59 @@ func authorize(next http.Handler) http.Handler {
 	})
 }
 
-func signin() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func handleLogin(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		if err := r.ParseForm(); err == nil {
+			// Retrieve form data
+			username := r.PostFormValue("username")
+			password := r.PostFormValue("password")
 
-		if r.Method == "POST" {
-			if err := r.ParseForm(); err == nil {
+			// Validate user
+			//if username == "admin" && password == "Pass@word1" {
+			if validateUser(username, password) {
 
-				// Retrieve form data
-				username := r.PostFormValue("username")
-				password := r.PostFormValue("password")
+				sessionid, _ := generateRandomString(12)
 
-				// Validate user
-				if username == "admin" && password == "Pass@word1" {
+				sessioncookie := http.Cookie{Name: sessionCOOKIENAME, Value: sessionid, Path: "/", HttpOnly: true}
+				http.SetCookie(w, &sessioncookie)
 
-					sessionid, _ := generateRandomString(12)
+				currentSessions[sessionid] = session{SessionID: sessionid, lastActionAt: time.Now()}
 
-					sessioncookie := http.Cookie{Name: sessionCOOKIENAME, Value: sessionid, Path: "/", HttpOnly: true}
-					http.SetCookie(w, &sessioncookie)
+				http.ServeFile(w, r, "../public/loggedindialog.html")
 
-					currentSessions[sessionid] = session{SessionID: sessionid, lastActionAt: time.Now()}
+				return
+			}
 
-					http.ServeFile(w, r, "../public/loggedindialog.html")
+		}
+	}
 
-					return
-				}
+	http.ServeFile(w, r, "../public/logindialog.html")
+}
 
+func handleSignUp(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		if err := r.ParseForm(); err == nil {
+			// Retrieve form data
+			password := r.PostFormValue("password")
+
+			if saveUser("admin", password) {
+				http.Redirect(w, r, "/signin", http.StatusSeeOther)
+
+				return
 			}
 		}
+	}
 
-		http.ServeFile(w, r, "../public/logindialog.html")
+	http.ServeFile(w, r, "../public/signupdialog.html")
+}
 
+func signin() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if isUserInit {
+			handleLogin(w, r)
+		} else {
+			handleSignUp(w, r)
+		}
 	})
 }
 
@@ -112,4 +135,14 @@ func signout() http.Handler {
 		sessioncookie = &http.Cookie{Name: sessionCOOKIENAME, Path: "/", MaxAge: -1}
 		http.SetCookie(w, sessioncookie)
 	})
+}
+
+func initAuth(mux *http.ServeMux) {
+	currentSessions = make(map[string]session)
+
+	// Sign In route
+	mux.Handle("/signin", signin())
+
+	// Log out
+	mux.Handle("/signout", signout())
 }

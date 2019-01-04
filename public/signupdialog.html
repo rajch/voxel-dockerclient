@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="/css/createdialogstyles.css">
+</head>
+
+<body>
+    <div class="dialog-container">
+        <div class="signupmessage">
+            This is the first time you have started Voxel-DockerClient. Please provide a password for the <strong>admin</strong> user.
+        </div>
+        <div class="dialog-inputs">
+            <form method="POST" action="/signin">
+                <div><label for="password">Password :</label><input type="password" id="password" name="password"></div>
+                <div class="errorRow">
+                    <div id="loginerror" class="invisible">* Login failed. Please try again.</div>
+                </div>
+                <div class="buttonRow"><input type="submit" id="submitbutton" value="Log In"></div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

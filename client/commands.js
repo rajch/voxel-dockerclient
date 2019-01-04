@@ -337,7 +337,7 @@ function commands (world) {
 
       dialog.heading('Log in')
       dialog.iframe(
-        'logindialog.html', { 'message': 'init', data: '' }, onLoginDialogMessage)
+        '/signin', { 'message': 'init', data: '' }, onLoginDialogMessage)
       dialog.open()
 
       function onLoginDialogMessage (event) {

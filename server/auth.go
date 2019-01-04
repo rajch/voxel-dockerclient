@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"log"
 	"net/http"
 	"time"
 )
@@ -30,7 +29,7 @@ func generateRandomString(n int) (string, error) {
 
 func authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Sessions:\n%v\n", currentSessions)
+		// log.Printf("Sessions:\n%v\n", currentSessions)
 
 		sessioncookie, _ := r.Cookie(sessionCOOKIENAME)
 		if sessioncookie == nil {

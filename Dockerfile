@@ -7,7 +7,7 @@ COPY package.json package.json
 RUN npm install && npm run build-public && npm run build-client-debug
 
 FROM golang:1.8.3-alpine AS gobuilder
-COPY server/server.go /go/src/github.com/rajch/voxel-dockerclient/server/
+COPY server/ /go/src/github.com/rajch/voxel-dockerclient/server/
 WORKDIR /go/src/github.com/rajch/voxel-dockerclient/server/
 RUN CGO_ENABLED='0' go build
 

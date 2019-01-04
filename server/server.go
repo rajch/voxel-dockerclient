@@ -20,7 +20,14 @@ func main() {
 	// Verify presence of docker socket
 	conn, err := net.Dial("unix", "/var/run/docker.sock")
 	if err != nil {
-		log.Fatalln("Could not connect to docker socket. Please map it using -v /var/run/docker.sock:/var/run/docker.sock")
+
+		log.Println("***************************************************")
+		log.Println("* Could not connect to docker socket.             *")
+		log.Println("* Please create a new container and map it using: *")
+		log.Println("* -v /var/run/docker.sock:/var/run/docker.sock    *")
+		log.Println("***************************************************")
+
+		log.Fatalln("Server exited.")
 	}
 	conn.Close()
 
@@ -116,7 +123,7 @@ func main() {
 		log.Println("Server shutting down...")
 		if err := srv.Shutdown(context.Background()); err != nil {
 			// Error from closing listeners, or context timeout:
-			log.Printf("Error during HTTP server Shutdown: %v", err)
+			log.Fatalf("Error during HTTP server Shutdown: %v", err)
 		}
 
 		close(serverClosed)

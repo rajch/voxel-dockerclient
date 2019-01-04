@@ -40,8 +40,13 @@ function commands (world) {
   }
 
   function onRequestError (errordata) {
-    if (errordata && errordata.response && errordata.response.statusText) {
-      world.logError('Error:' + errordata.response.statusText)
+    if (errordata && errordata.response /*&& errordata.response.statusText*/) {
+      if(errordata.response.status === 401) {
+        // Unauthorized
+        executeCommand('login')
+      } else {
+        world.logError('Error:' + errordata.response.statusText)
+      }
     } else {
       world.logError('Error:' + errordata)
     }

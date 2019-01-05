@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -63,6 +64,22 @@ func main() {
 		}
 
 		close(serverClosed)
+	}()
+
+	// Create a ticker for periodically cleaning dead sessions
+	const cleanupTIMEOUT = 1
+	go func() {
+		ticker := time.NewTicker(cleanupTIMEOUT * time.Minute)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				go cleanupSessions()
+			case <-serverClosed:
+				return
+			}
+		}
 	}()
 
 	// Start listening using the server

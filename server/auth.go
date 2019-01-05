@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -16,6 +17,7 @@ type session struct {
 }
 
 var currentSessions map[string]session
+var sessionsLock sync.RWMutex
 
 func generateRandomString(n int) (string, error) {
 	b := make([]byte, n)
@@ -40,7 +42,10 @@ func authorize(next http.Handler) http.Handler {
 		sessionid := sessioncookie.Value
 
 		// Check if session exists
+		sessionsLock.RLock()
 		currentsession := currentSessions[sessionid]
+		sessionsLock.RUnlock()
+
 		if currentsession == (session{}) {
 			http.Error(w, "Seemingly logged in, but not.", http.StatusUnauthorized)
 			return
@@ -54,7 +59,9 @@ func authorize(next http.Handler) http.Handler {
 			http.SetCookie(w, sessioncookie)
 
 			// Remove session
+			sessionsLock.Lock()
 			delete(currentSessions, sessionid)
+			sessionsLock.Unlock()
 
 			http.Error(w, "Logged out due to idleness.", http.StatusUnauthorized)
 			return
@@ -83,7 +90,9 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 				sessioncookie := http.Cookie{Name: sessionCOOKIENAME, Value: sessionid, Path: "/", HttpOnly: true}
 				http.SetCookie(w, &sessioncookie)
 
+				sessionsLock.Lock()
 				currentSessions[sessionid] = session{SessionID: sessionid, lastActionAt: time.Now()}
+				sessionsLock.Unlock()
 
 				http.ServeFile(w, r, "../public/loggedindialog.html")
 
@@ -129,12 +138,32 @@ func signout() http.Handler {
 		if sessioncookie != nil {
 			sessionid := sessioncookie.Value
 
+			sessionsLock.Lock()
 			delete(currentSessions, sessionid)
+			sessionsLock.Unlock()
 		}
 
 		sessioncookie = &http.Cookie{Name: sessionCOOKIENAME, Path: "/", MaxAge: -1}
 		http.SetCookie(w, sessioncookie)
 	})
+}
+
+func cleanupSessions() {
+	var sessionsToClean []string
+
+	sessionsLock.Lock()
+
+	for key, value := range currentSessions {
+		if time.Now().Sub(value.lastActionAt) > (time.Second * timeOUT) {
+			sessionsToClean = append(sessionsToClean, key)
+		}
+	}
+
+	for _, value := range sessionsToClean {
+		delete(currentSessions, value)
+	}
+
+	sessionsLock.Unlock()
 }
 
 func initAuth(mux *http.ServeMux) {

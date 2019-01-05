@@ -95,35 +95,37 @@ var world = function (opts) {
       })
   }
 
-  function refreshContainers () {
+  function refreshContainers (successCallback, errorCallback) {
     var oldpos = player.getPosition()
     player.gohome()
     cc.clear()
     listContainers(
-      function refreshSuccess (successdata) {
-        gameconsole.log('Containers refreshed.')
+      function refreshContainersSuccess (successdata) {
         player.gotoPosition(oldpos)
+        successCallback.call(thisworld, successdata)
       },
-      function refreshError (error) { gameconsole.logError(error) })
+      function refreshContainersError (error) {
+        errorCallback.call(thisworld, error)
+      })
   }
 
   function initWorld () {
-    listContainers(
-      function listContainersSuccess (successdata) {
-        game.setTimeout(function fadeTitle () {
-          document.getElementById('clienttitle').className = 'gone'
-        }, 30000)
+    refreshContainers(
+      function initRefreshSuccess (successdata) {
         gameconsole.log('Type help and press enter to see available commands.')
         if (window.location.hash !== 'refresh') {
           gameconsole.executeCommand('welcome')
         }
       },
-      function listContainersError (error) {
-        gameconsole.logError(error)
-        gameconsole.logUsage(
-          'If you are running this from a docker container, you probably forgot to map the docker socket as a volume. ' +
-          'Create the container with -v /var/run/docker.sock:/var/run/docker.sock')
-      })
+      function initRefreshError (error) {
+        // Check for unauthorized
+        if (error.response && error.response.status === 401) {
+          commands.execute('login', 'start')
+        } else {
+          gameconsole.logError(error)
+        }
+      }
+    )
   }
 
   this.options = function () { return opts }

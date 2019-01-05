@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="css/createdialogstyles.css">
+</head>
+
+<body>
+    <div class="dialog-container">
+        <div class="dialog-inputs">
+            <form method="POST" action="/signin">
+                <div><label for="username">User Name :</label><input type="text" id="username" name="username"></div>
+                <div><label for="password">Password :</label><input type="password" id="password" name="password"></div>
+                <div class="errorRow">
+                    <div id="loginerror" class="invisible">* Login failed. Please try again.</div>
+                </div>
+                <div class="buttonRow"><input type="submit" id="submitbutton" value="Log In"></div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

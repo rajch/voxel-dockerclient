@@ -55,7 +55,8 @@ var Container = function (world, name, dockerdata, startXposition) {
     if (!containertitle) {
       // Draw the container name
       var textGeometry = new T.TextGeometry(
-          name + '(' + dockerdata.Image + ')' + (dockerdata.Command ? '|' + dockerdata.Command : ''), {
+          /*name + '(' + dockerdata.Image + ')' + (dockerdata.Command ? '|' + dockerdata.Command : ''), {*/
+            name, {
             size: 0.1,
             height: 0.1,
             curveSegments: 2,

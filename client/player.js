@@ -37,7 +37,7 @@ var player = function (world) {
     player.moveTo(world.containers.getNextContainerPosition(), 2, 0)
   };
 
-  function moveToConainer (name) {
+  function moveToContainer (name) {
     var citem = world.containers.getContainer(name)
     if (citem) {
       player.moveTo(citem.getPosition()[0] + 2, 2, 0)
@@ -71,7 +71,7 @@ var player = function (world) {
 
   this.gotonextslot = goToNextSlot
 
-  this.moveToContainer = moveToConainer
+  this.moveToContainer = moveToContainer
 
   this.getPosition = getPosition
 

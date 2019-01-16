@@ -20,7 +20,10 @@
         // Game will send us container name
         var containername = event.data.data;
 
-        terminal = new Terminal(80, 26);
+        terminal = new Terminal({
+          cols: 80, 
+          rows: 26
+        });
         terminal.open(document.getElementById('terminal-container'));
 
         var wsUri = "ws://" + window.location.host + "/websocket/containers/" + containername +

@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/rajch/voxel-dockerclient#readme",
   "dependencies": {
-    "axios": "^0.15.3",
+    "axios": ">=0.19.0",
     "shellwords": "^0.1.0",
     "voxel-console": "^1.0.1",
     "voxel-engine": "git+https://github.com/rajch/voxel-engine.git",

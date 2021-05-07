@@ -52,7 +52,7 @@ func authorize(next http.Handler) http.Handler {
 		}
 
 		// Expire session on extra idle time
-		if time.Now().Sub(currentsession.lastActionAt).Seconds() > timeOUT {
+		if time.Since(currentsession.lastActionAt).Seconds() > timeOUT {
 
 			// Expire cookie
 			sessioncookie.Expires = time.Now().AddDate(-1, 0, 0)
@@ -154,7 +154,7 @@ func cleanupSessions() {
 	sessionsLock.Lock()
 
 	for key, value := range currentSessions {
-		if time.Now().Sub(value.lastActionAt) > (time.Second * timeOUT) {
+		if time.Since(value.lastActionAt) > (time.Second * timeOUT) {
 			sessionsToClean = append(sessionsToClean, key)
 		}
 	}

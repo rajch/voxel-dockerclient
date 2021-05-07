@@ -1,11 +1,11 @@
-var CONTAINERSTATE = require('./containerstate')
+const CONTAINERSTATE = require('./containerstate')
 
 /** Voxel-Dockerclient commands
  *  @constructor
  *  @param {module:world~world} world
  */
 function commands (world) {
-  var commands = {}
+  const commands = {}
 
   /** Voxel-Dockerclient command. 'this' evaluates to world in the action parameter
    *  @constructor
@@ -19,7 +19,7 @@ function commands (world) {
 
   function addCommand (name, description, action, commandType) {
     name = name.toLowerCase()
-    var newCommand = new Command(name, description, action, commandType)
+    const newCommand = new Command(name, description, action, commandType)
     commands[name] = newCommand
     return newCommand
   }
@@ -56,12 +56,12 @@ function commands (world) {
   addCommand('help',
     'Shows all available commands',
     function helpCommand (args) {
-      var helpHeader = ['Command', 'Description']
-      var helpBody = []
-      for (var cn in commands) {
+      const helpHeader = ['Command', 'Description']
+      const helpBody = []
+      for (const cn in commands) {
         helpBody.push([cn, commands[cn].description])
       }
-      var dialog = world.dialog()
+      const dialog = world.dialog()
       dialog.heading('Available commands')
       dialog.html(world.tablify({ header: helpHeader, body: helpBody }))
       dialog.open()
@@ -72,7 +72,7 @@ function commands (world) {
     'Inspects a container',
     function inpectCommand (container) {
       container.inspect(function inspectSuccess (success) {
-        var dialog = world.dialog()
+        const dialog = world.dialog()
         dialog.heading('Inspecting ' + container.name())
         dialog.html('<pre>' + JSON.stringify(success.data, null, '\t') + '</pre>')
         dialog.open()
@@ -83,10 +83,10 @@ function commands (world) {
   addCommand('top',
     'Shows processes running in a container',
     function topCommand (container) {
-      var containerState = container.getState()
+      const containerState = container.getState()
       if (containerState === CONTAINERSTATE.running || containerState === CONTAINERSTATE.paused) {
         container.top(function topSuccess (success) {
-          var dialog = world.dialog()
+          const dialog = world.dialog()
           dialog.heading('Processes running in ' + container.name())
           dialog.html(world.tablify({ header: success.data.Titles, body: success.data.Processes }))
           dialog.open()
@@ -100,7 +100,7 @@ function commands (world) {
   addCommand('logs',
     'Shows container logs',
     function logsCommand (container) {
-      var dialog = world.dialog()
+      const dialog = world.dialog()
       dialog.heading('Showing logs of ' + container.name())
       dialog.html('No logs yet.')
       dialog.open()
@@ -113,10 +113,10 @@ function commands (world) {
         function onLogsProgress (event) { dialog.html(formatResponse(event.currentTarget.responseText)) })
 
       function formatResponse (respText) {
-        var respArray = respText.split('\n')
-        var formattedArray = respArray.map(function formatter (index) {
-          var firstchar = index.charCodeAt(0)
-          var result = index.substring(2)
+        const respArray = respText.split('\n')
+        const formattedArray = respArray.map(function formatter (index) {
+          const firstchar = index.charCodeAt(0)
+          let result = index.substring(2)
           if (firstchar === 1) {
             result = '<div class="stdout">STDOUT:' + result + '</div>'
           } else if (firstchar === 2) {
@@ -132,11 +132,11 @@ function commands (world) {
   addCommand('attach',
     'Attaches to a container',
     function attachCommand (container) {
-      var dialog = world.dialog()
+      const dialog = world.dialog()
 
       dialog.heading('Attaching to ' + container.name())
       dialog.iframe(
-        'terminaldialog.html', { 'message': 'init', data: container.name() }, onAttachDialogMessage)
+        'terminaldialog.html', { message: 'init', data: container.name() }, onAttachDialogMessage)
       dialog.open()
 
       function onAttachDialogMessage (event) {
@@ -150,7 +150,7 @@ function commands (world) {
   addCommand('start',
     'Starts a container',
     function (container) {
-      var containerState = container.getState()
+      const containerState = container.getState()
       if (containerState === CONTAINERSTATE.created || containerState === CONTAINERSTATE.exited) {
         container.start(function startSuccess (successdata) { world.log(container.getState()) },
           onRequestError)
@@ -174,9 +174,9 @@ function commands (world) {
   addCommand('go',
     'Takes player to a container, or to the first or last container. Type go home if you get lost.',
     function goCommand (args) {
-      var player = world.player()
+      const player = world.player()
       if (args.length > 1) {
-        var arg = args[1]
+        const arg = args[1]
         switch (arg) {
           case 'home':
             player.gohome()
@@ -197,9 +197,9 @@ function commands (world) {
   addCommand('remove',
     'Deletes a container',
     function removeCommand (container) {
-      var containerState = container.getState()
+      const containerState = container.getState()
       if (containerState === CONTAINERSTATE.created || containerState === CONTAINERSTATE.exited) {
-        var containername = container.name()
+        const containername = container.name()
         world.apiClient.removecontainer(containername,
           {},
           function removeSuccess () {
@@ -217,14 +217,14 @@ function commands (world) {
     'create',
     'Creates a container',
     function createCommand (container) {
-      var dialog = world.dialog()
+      const dialog = world.dialog()
 
       world.apiClient.listimages(
         {},
         function createSuccess (success) {
-          var dialog = world.dialog()
+          const dialog = world.dialog()
           dialog.heading('Create a new container')
-          dialog.iframe('createdialog.html', { 'message': 'init', data: success.data }, onCreateDialogMessage)
+          dialog.iframe('createdialog.html', { message: 'init', data: success.data }, onCreateDialogMessage)
           dialog.open()
         },
         onRequestError)
@@ -235,7 +235,7 @@ function commands (world) {
         } else if (event.data.message === 'verifyname') {
           verifynameavailable(event.data.name)
         } else if (event.data.message === 'create') {
-          var createparams = event.data.data
+          const createparams = event.data.data
           if (verifynameavailable(createparams.name)) {
             // Sanitize command
             if (createparams.Cmd === '') {
@@ -272,7 +272,7 @@ function commands (world) {
       }
 
       function verifynameavailable (name) {
-        var result = true
+        let result = true
         if (world.containers.getContainer(name)) {
           dialog.postMessage({ message: 'containerexists', data: { name: name } })
           result = false
@@ -286,9 +286,9 @@ function commands (world) {
     'welcome',
     'Shows the welcome message',
     function welcomeCommand () {
-      var dialog = world.dialog()
+      const dialog = world.dialog()
       dialog.heading('Welcome to voxel-dockerclient')
-      var welcomecontent = {
+      const welcomecontent = {
         header: ['Use', 'To'],
         body: [
           ['your mouse', 'look around'],
@@ -333,11 +333,11 @@ function commands (world) {
   addCommand('login',
     'Shows the login dialog',
     function loginCommand (arg) {
-      var dialog = world.dialog()
+      const dialog = world.dialog()
 
       dialog.heading('Log in')
       dialog.iframe(
-        '/signin', { 'message': 'init', data: '' }, onLoginDialogMessage)
+        '/signin', { message: 'init', data: '' }, onLoginDialogMessage)
       dialog.open()
 
       function onLoginDialogMessage (event) {

@@ -1,32 +1,32 @@
-var ModalDialog = require('voxel-modal-dialog')
+const ModalDialog = require('voxel-modal-dialog')
 
 /** The modal dialog shown in voxel-dockerclient
  *  @constructor
  *  @param {world} world - The voxel-dockerclient world object
  */
 function dialog (world) {
-  var opts = {}
-  var box = document.createElement('div')
+  const opts = {}
+  const box = document.createElement('div')
   box.className = 'docker-dialog-content'
 
-  var headingelement = document.createElement('h2')
+  const headingelement = document.createElement('h2')
   box.appendChild(headingelement)
 
-  var innerbox = document.createElement('div')
+  const innerbox = document.createElement('div')
   innerbox.className = 'content'
   box.appendChild(innerbox)
 
-  var frame
-  var messageHandler
+  let frame
+  let messageHandler
 
   opts.contents = [box]
 
-  var modaldialog = new ModalDialog(world.game(), opts)
+  const modaldialog = new ModalDialog(world.game(), opts)
 
   function open () {
-    var parentElement = world.options().parentElement
-    var width = parentElement.clientWidth * 0.8
-    var height = parentElement.clientHeight * 0.8
+    const parentElement = world.options().parentElement
+    const width = parentElement.clientWidth * 0.8
+    const height = parentElement.clientHeight * 0.8
 
     box.style.width = width + 'px'
     box.style.height = height + 'px'

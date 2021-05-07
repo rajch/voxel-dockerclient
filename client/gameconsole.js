@@ -1,6 +1,6 @@
-var shellwords = require('shellwords')
+const shellwords = require('shellwords')
 
-var dockergameconsole = function (world) {
+const dockergameconsole = function (world) {
   const game = world.game()
   const voxelconsole = game.plugins.get('voxel-console')
   const widget = voxelconsole.widget
@@ -23,11 +23,11 @@ var dockergameconsole = function (world) {
       logCommand(text)
     }
     try {
-      var argv = shellwords.split(text)
-      var command = commands.get(argv[0])
+      const argv = shellwords.split(text)
+      const command = commands.get(argv[0])
       if (command) {
         if (command.commandType === 'containercommand') {
-          var container = argv[1] ? world.containers.getContainer(argv[1]) : world.player().getAdjacentContainer()
+          const container = argv[1] ? world.containers.getContainer(argv[1]) : world.player().getAdjacentContainer()
           if (!container) {
             if (argv[1]) {
               logError('Error: There is no container called ' + argv[1])
@@ -52,13 +52,11 @@ var dockergameconsole = function (world) {
   }
 
   function tablify (tabledata) {
-    var header
-    var bodyrows
-    var body
-    var table
+    let header
+    let table
 
-    bodyrows = tabledata.body.map(function (row) { return row.map(function (cell) { return '<td>' + cell + '</td>' }) })
-    body = '<tbody>' + bodyrows.map(function (row) { return '<tr>' + row.join('') + '</tr>' }).join('') + '</tbody>'
+    const bodyrows = tabledata.body.map(function (row) { return row.map(function (cell) { return '<td>' + cell + '</td>' }) })
+    const body = '<tbody>' + bodyrows.map(function (row) { return '<tr>' + row.join('') + '</tr>' }).join('') + '</tbody>'
 
     table = '<table>'
     if (tabledata.header) {

@@ -1,6 +1,6 @@
-var CONTAINERSTATE = require('./containerstate')
+const CONTAINERSTATE = require('./containerstate')
 
-const CONTAINERORIGIN = [ 0, 2, -4 ]
+const CONTAINERORIGIN = [0, 2, -4]
 const CWIDTH = 3
 const CHEIGHT = 3
 const CDEPTH = 3
@@ -12,7 +12,7 @@ const CPADDEDWIDTH = 4
  *  @param {string} name - Name of the container
  *  @param {Object} [dockerdata] - Data returned by docker containers/json or inspect/json APIs
  */
-var Container = function (world, name, dockerdata, startXposition) {
+const Container = function (world, name, dockerdata, startXposition) {
   const game = world.game()
   // const thiscontainer = this
 
@@ -25,51 +25,51 @@ var Container = function (world, name, dockerdata, startXposition) {
   /** Container State
    *  @type CONTAINERSTATE
    */
-  var state = dockerdata.State || CONTAINERSTATE.exited
+  let state = dockerdata.State || CONTAINERSTATE.exited
 
-  var containerstartpos = [ startXposition, CONTAINERORIGIN[1], CONTAINERORIGIN[2] - CDEPTH ]
-  var containerendpos = [ containerstartpos[0] + CWIDTH, CONTAINERORIGIN[1] + CHEIGHT, CONTAINERORIGIN[2] ]
+  const containerstartpos = [startXposition, CONTAINERORIGIN[1], CONTAINERORIGIN[2] - CDEPTH]
+  const containerendpos = [containerstartpos[0] + CWIDTH, CONTAINERORIGIN[1] + CHEIGHT, CONTAINERORIGIN[2]]
 
-  var containertitle
+  let containertitle
 
   function drawContainer () {
     // Draw the container shape
     game.blocks(containerstartpos, containerendpos, function (x, y, z, i) {
       if (
-            (
-              (x === containerstartpos[0] || x === containerendpos[0] - 1) &&
+        (
+          (x === containerstartpos[0] || x === containerendpos[0] - 1) &&
               (z === containerstartpos[2] || z === containerendpos[2] - 1)
-            ) ||
+        ) ||
             y === CONTAINERORIGIN[1] + CHEIGHT - 1 ||
             y === CONTAINERORIGIN[1]) {
-        game.setBlock([ x, y, z ], 'container')
+        game.setBlock([x, y, z], 'container')
       } else {
         if (state !== CONTAINERSTATE.running) {
-          game.setBlock([ x, y, z ], 'exited')
+          game.setBlock([x, y, z], 'exited')
         } else {
-          game.setBlock([ x, y, z ], 'running')
+          game.setBlock([x, y, z], 'running')
         }
       }
     })
 
     if (!containertitle) {
       // Draw the container name
-      var textGeometry = new T.TextGeometry(
-          /*name + '(' + dockerdata.Image + ')' + (dockerdata.Command ? '|' + dockerdata.Command : ''), {*/
-            name, {
-            size: 0.1,
-            height: 0.1,
-            curveSegments: 2,
-            font: 'droid sans',
-            weight: 'normal',
-            bevelThickness: 0.1,
-            bevelSize: 1,
-            bevelEnabled: false
-          })
+      const textGeometry = new T.TextGeometry(
+        /* name + '(' + dockerdata.Image + ')' + (dockerdata.Command ? '|' + dockerdata.Command : ''), { */
+        name, {
+          size: 0.1,
+          height: 0.1,
+          curveSegments: 2,
+          font: 'droid sans',
+          weight: 'normal',
+          bevelThickness: 0.1,
+          bevelSize: 1,
+          bevelEnabled: false
+        })
 
-      var textMaterial = new T.MeshBasicMaterial({ color: 0x325722 })
+      const textMaterial = new T.MeshBasicMaterial({ color: 0x325722 })
 
-      var mesh = new T.Mesh(textGeometry, textMaterial)
+      const mesh = new T.Mesh(textGeometry, textMaterial)
       mesh.position.set(containerstartpos[0], CONTAINERORIGIN[1] + CHEIGHT + 0.15, containerendpos[2])
 
       containertitle = game.addItem({
@@ -86,7 +86,7 @@ var Container = function (world, name, dockerdata, startXposition) {
   this.destroy = function () {
     if (containertitle) { game.removeItem(containertitle) }
 
-    game.blocks(containerstartpos, containerendpos, function (x, y, z, i) { game.setBlock([ x, y, z ], 0) })
+    game.blocks(containerstartpos, containerendpos, function (x, y, z, i) { game.setBlock([x, y, z], 0) })
 
     return containerstartpos[0] // return the starting X position
   }
@@ -114,45 +114,45 @@ var Container = function (world, name, dockerdata, startXposition) {
 
   this.inspect = function (successCallback, errorCallback) {
     client.inspectcontainer(name,
-                            {},
-                            function (success) { successCallback.call(this, success) },
-                            function (error) { errorCallback.call(this, error) })
+      {},
+      function (success) { successCallback.call(this, success) },
+      function (error) { errorCallback.call(this, error) })
   }
 
   this.top = function (successCallback, errorCallback) {
     client.topcontainer(name,
-                        {},
-                        function (success) { successCallback.call(this, success) },
-                        function (error) { errorCallback.call(this, error) })
+      {},
+      function (success) { successCallback.call(this, success) },
+      function (error) { errorCallback.call(this, error) })
   }
 
   this.logs = function (successCallback, errorCallback) {
     client.logscontainer(name,
-                         {},
-                         function (success) { successCallback.call(this, success) },
-                         function (error) { errorCallback.call(this, error) })
+      {},
+      function (success) { successCallback.call(this, success) },
+      function (error) { errorCallback.call(this, error) })
   }
 
   this.start = function (successCallback, errorCallback) {
     client.startcontainer(name,
-                          {},
-                          function (success) {
-                            state = CONTAINERSTATE.running
-                            drawContainer()
-                            successCallback.call(this, success)
-                          },
-                          function (error) { errorCallback.call(this, error) })
+      {},
+      function (success) {
+        state = CONTAINERSTATE.running
+        drawContainer()
+        successCallback.call(this, success)
+      },
+      function (error) { errorCallback.call(this, error) })
   }
 
   this.stop = function (successCallback, errorCallback) {
     client.stopcontainer(name,
-                         {},
-                         function (success) {
-                           state = CONTAINERSTATE.exited
-                           drawContainer()
-                           successCallback.call(this, success)
-                         },
-                         function (error) { errorCallback.call(this, error) })
+      {},
+      function (success) {
+        state = CONTAINERSTATE.exited
+        drawContainer()
+        successCallback.call(this, success)
+      },
+      function (error) { errorCallback.call(this, error) })
   }
 
   this.name = function () { return name }
@@ -162,18 +162,18 @@ var Container = function (world, name, dockerdata, startXposition) {
  *  @constructor
  *  @param {module:world~dockerworld} world
  */
-var containercollection = function (world) {
+const containercollection = function (world) {
   // var thiscollection = this
   // const client = world.apiClient
 
-  var containers = []
-  var containernames = {}
+  let containers = []
+  let containernames = {}
 
-  var nextcontainerordinal = [0]
+  let nextcontainerordinal = [0]
 
   function clearContainers () {
-    var names = Object.keys(containernames).reverse()
-    names.map(function (cn) { removeContainerFromWorld(cn) })
+    const names = Object.keys(containernames).reverse()
+    names.forEach(function (cn) { removeContainerFromWorld(cn) })
 
     containers = []
     containernames = {}
@@ -193,13 +193,13 @@ var containercollection = function (world) {
   };
 
   function addContainerToWorld (containername, dockerdata) {
-    var citem
+    let citem
     if (containernames[containername]) {
       throw new Error('A container called ' + containername + ' already exists.')
     } else {
       citem = new Container(world, containername, dockerdata, getNextContainerPosition())
 
-      var nextOrdinal = getNextContainerOrdinal()
+      const nextOrdinal = getNextContainerOrdinal()
       containers[nextOrdinal] = citem
       containernames[containername] = nextOrdinal
 
@@ -214,9 +214,9 @@ var containercollection = function (world) {
   }
 
   function removeContainerFromWorld (containername) {
-    var itemindex = containernames[containername]
+    const itemindex = containernames[containername]
     if (itemindex === undefined) { throw new Error('There is no container called ' + containername + '.') }
-    var citem = containers[itemindex]
+    const citem = containers[itemindex]
 
     // var destroyedpos = citem.destroy()
     citem.destroy()
@@ -238,14 +238,14 @@ var containercollection = function (world) {
   function redrawContainersInChunk (chunkposition) {
     if (chunkposition[1] === 0 && chunkposition[2] === -1 && chunkposition[0] >= 0) {
       if (chunkposition[0] <= maxContainerChunkX()) {
-        var rc = world.game().voxels.generateChunk(chunkposition[0], chunkposition[1], chunkposition[2])
+        let rc = world.game().voxels.generateChunk(chunkposition[0], chunkposition[1], chunkposition[2])
         world.game().pendingChunks.pop()
 
-        var startXpos = chunkposition[0] << world.game().voxels.chunkBits
-        var firstContainer = getContainerOrdinalFromX(startXpos)
-        var lastContainer = firstContainer + Math.floor(world.game().chunkSize / CPADDEDWIDTH)
+        const startXpos = chunkposition[0] << world.game().voxels.chunkBits
+        const firstContainer = getContainerOrdinalFromX(startXpos)
+        let lastContainer = firstContainer + Math.floor(world.game().chunkSize / CPADDEDWIDTH)
         lastContainer = Math.min(lastContainer, containers.length)
-        for (var i = firstContainer; i < lastContainer; i++) {
+        for (let i = firstContainer; i < lastContainer; i++) {
           if (containers[i]) { containers[i].redraw() }
         }
         rc = world.game().voxels.chunks[chunkposition.join('|')]
@@ -255,10 +255,10 @@ var containercollection = function (world) {
   }
 
   function getContainerAtPosition (pos) {
-    var retval
+    let retval
     if (pos[1] >= CONTAINERORIGIN[1] && pos[1] < CONTAINERORIGIN[1] + CHEIGHT && pos[2] >= CONTAINERORIGIN[2] - CDEPTH &&
        pos[2] <= CONTAINERORIGIN[2]) {
-      var containerindex = getContainerOrdinalFromX(pos[0])
+      const containerindex = getContainerOrdinalFromX(pos[0])
       if (containerindex >= 0) { retval = containers[containerindex] }
     }
     return retval
@@ -307,7 +307,7 @@ var containercollection = function (world) {
    *  @returns Container
    */
   this.getContainer = function (name) {
-    var itemindex = containernames[name]
+    const itemindex = containernames[name]
     return itemindex !== undefined ? containers[itemindex] : itemindex
   }
   /** Draws containers in a chunk

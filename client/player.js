@@ -1,23 +1,23 @@
-var player = function (world) {
+const player = function (world) {
   const game = world.game()
 
-  var voxelplayer = require('voxel-player')(game)
-  var player = voxelplayer('textures/player.png')
+  const voxelplayer = require('voxel-player')(game)
+  const player = voxelplayer('textures/player.png')
 
   player.pov('third')
   player.position.set(2, 2, 0)
   player.possess()
 
-  var voxelfly = require('voxel-fly')(game)
-  var flyer = voxelfly(player)
+  const voxelfly = require('voxel-fly')(game)
+  const flyer = voxelfly(player)
 
-  var walker = require('voxel-walk')
+  const walker = require('voxel-walk')
 
   game.on('tick', function () {
     if (!flyer.flying) {
       walker.render(player.playerSkin)
-      var vx = Math.abs(player.velocity.x)
-      var vz = Math.abs(player.velocity.z)
+      const vx = Math.abs(player.velocity.x)
+      const vz = Math.abs(player.velocity.z)
       if (vx > 0.001 || vz > 0.001) {
         walker.stopWalking()
       } else {
@@ -26,7 +26,7 @@ var player = function (world) {
     }
   })
 
-  var keys = game.plugins.get('voxel-keys')
+  const keys = game.plugins.get('voxel-keys')
   keys.down.on('pov', function () { player.toggle() })
 
   function goHome () {
@@ -38,7 +38,7 @@ var player = function (world) {
   };
 
   function moveToContainer (name) {
-    var citem = world.containers.getContainer(name)
+    const citem = world.containers.getContainer(name)
     if (citem) {
       player.moveTo(citem.getPosition()[0] + 2, 2, 0)
     } else {
@@ -47,19 +47,19 @@ var player = function (world) {
   }
 
   function getPosition () {
-    return [ Math.round(player.position.x), Math.round(player.position.y), Math.round(player.position.z) ]
+    return [Math.round(player.position.x), Math.round(player.position.y), Math.round(player.position.z)]
   }
 
   function getAdjacentContainer () {
-    var camvec = world.game().cameraVector().map(function (cv) { return Math.round(cv) })
-    var ppos = getPosition()
-    var cpos = ppos.map(function (cv, index) { return cv + camvec[index] })
+    const camvec = world.game().cameraVector().map(function (cv) { return Math.round(cv) })
+    const ppos = getPosition()
+    const cpos = ppos.map(function (cv, index) { return cv + camvec[index] })
 
     return world.containers.getContainerAtPosition(cpos)
   }
 
   function getAdjacentContainerName () {
-    var citem = getAdjacentContainer()
+    const citem = getAdjacentContainer()
     return citem !== undefined ? citem.name() : citem
   }
 

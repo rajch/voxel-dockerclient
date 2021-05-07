@@ -1,4 +1,4 @@
-var axios = require('axios')
+const axios = require('axios')
 
 function apiclient (baseurl) {
   baseurl = baseurl || ''
@@ -6,28 +6,28 @@ function apiclient (baseurl) {
   function get (url, opts, successHandler, errorHandler, progressHandler) {
     opts = opts || {}
 
-    var config = {}
+    const config = {}
     config.params = opts
     if (typeof progressHandler === 'function') {
       config.onDownloadProgress = progressHandler
     }
 
     axios.get(baseurl + url, config).then(function (response) { successHandler.call(axios, response) }).catch(
-        function (error) { errorHandler.call(axios, error) })
+      function (error) { errorHandler.call(axios, error) })
   }
 
   function post (url, opts, successHandler, errorHandler) {
     opts = opts || {}
 
     axios.post(baseurl + url, opts).then(function (response) { successHandler.call(axios, response) }).catch(
-        function (error) { errorHandler.call(axios, error) })
+      function (error) { errorHandler.call(axios, error) })
   }
 
   function deleteverb (url, opts, successHandler, errorHandler) {
     opts = opts || {}
 
     axios.delete(baseurl + url, opts).then(function (response) { successHandler.call(axios, response) }).catch(
-        function (error) { errorHandler.call(axios, error) })
+      function (error) { errorHandler.call(axios, error) })
   }
 
   this.listcontainers = function (opts, successHandler, errorHandler) {

@@ -9,8 +9,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var dataDIR = "/run/secrets/"
-var dataFILE = "/run/secrets/vdcpassword"
+var dataDIR = ""
+var dataFILE = "vdcpassword"
 
 const cryptCOST = 12
 
@@ -18,7 +18,7 @@ var isUserInit bool
 var passwordhashstring string
 
 func initUser() {
-	dataDIR = filepath.Join(".", "../data")
+	dataDIR = filepath.Join(".", "data")
 	dataFILE = filepath.Join(dataDIR, "vdcpassword")
 
 	passwordhash, err := ioutil.ReadFile(dataFILE)
@@ -29,7 +29,7 @@ func initUser() {
 }
 
 func validateUser(username string, password string) bool {
-	if username == "admin" {
+	if isUserInit && username == "admin" {
 		err := bcrypt.CompareHashAndPassword([]byte(passwordhashstring), []byte(password))
 		if err == nil {
 			return true

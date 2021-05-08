@@ -56,3 +56,5 @@ public/js/client.js
 public/js/xterm.js
 public/css/xterm.css
 
+# output of all builds
+out/

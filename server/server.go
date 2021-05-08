@@ -36,7 +36,8 @@ func main() {
 	// Set up docker proxy, routes /api (authorized) and /websocket
 	initDockerProxy(serverMux)
 
-	serverMux.Handle("/", http.FileServer(http.Dir("../public")))
+	// Set up static content from application directory
+	serverMux.Handle("/", http.FileServer(http.Dir(".")))
 
 	// Set up a custom server object
 	srv := http.Server{Addr: ":8080", Handler: serverMux}
@@ -83,7 +84,7 @@ func main() {
 	}()
 
 	// Start listening using the server
-	log.Println("Server starting...")
+	log.Println("Server starting on port 8080...")
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("The server failed with the following error:%v\n", err)
 	}

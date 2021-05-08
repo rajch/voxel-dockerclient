@@ -8,8 +8,12 @@ import (
 	"time"
 )
 
-const timeOUT = 120
-const sessionCOOKIENAME = "vdc.sid"
+const timeOut = 120
+const sessionCookieName = "vdc.sid"
+
+const loginDialogFile = "logindialog.html"
+const loggedInDialogFile = "loggedindialog.html"
+const signUpDialogFile = "signupdialog.html"
 
 type session struct {
 	SessionID    string
@@ -31,9 +35,7 @@ func generateRandomString(n int) (string, error) {
 
 func authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// log.Printf("Sessions:\n%v\n", currentSessions)
-
-		sessioncookie, _ := r.Cookie(sessionCOOKIENAME)
+		sessioncookie, _ := r.Cookie(sessionCookieName)
 		if sessioncookie == nil {
 			http.Error(w, "Not logged in at all.", http.StatusUnauthorized)
 			return
@@ -52,7 +54,7 @@ func authorize(next http.Handler) http.Handler {
 		}
 
 		// Expire session on extra idle time
-		if time.Since(currentsession.lastActionAt).Seconds() > timeOUT {
+		if time.Since(currentsession.lastActionAt).Seconds() > timeOut {
 
 			// Expire cookie
 			sessioncookie.Expires = time.Now().AddDate(-1, 0, 0)
@@ -82,19 +84,18 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 			password := r.PostFormValue("password")
 
 			// Validate user
-			//if username == "admin" && password == "Pass@word1" {
 			if validateUser(username, password) {
 
 				sessionid, _ := generateRandomString(12)
 
-				sessioncookie := http.Cookie{Name: sessionCOOKIENAME, Value: sessionid, Path: "/", HttpOnly: true}
+				sessioncookie := http.Cookie{Name: sessionCookieName, Value: sessionid, Path: "/", HttpOnly: true}
 				http.SetCookie(w, &sessioncookie)
 
 				sessionsLock.Lock()
 				currentSessions[sessionid] = session{SessionID: sessionid, lastActionAt: time.Now()}
 				sessionsLock.Unlock()
 
-				http.ServeFile(w, r, "../public/loggedindialog.html")
+				http.ServeFile(w, r, loggedInDialogFile)
 
 				return
 			}
@@ -102,7 +103,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.ServeFile(w, r, "../public/logindialog.html")
+	http.ServeFile(w, r, loginDialogFile)
 }
 
 func handleSignUp(w http.ResponseWriter, r *http.Request) {
@@ -119,7 +120,7 @@ func handleSignUp(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.ServeFile(w, r, "../public/signupdialog.html")
+	http.ServeFile(w, r, signUpDialogFile)
 }
 
 func signin() http.Handler {
@@ -134,7 +135,7 @@ func signin() http.Handler {
 
 func signout() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sessioncookie, _ := r.Cookie(sessionCOOKIENAME)
+		sessioncookie, _ := r.Cookie(sessionCookieName)
 		if sessioncookie != nil {
 			sessionid := sessioncookie.Value
 
@@ -143,7 +144,7 @@ func signout() http.Handler {
 			sessionsLock.Unlock()
 		}
 
-		sessioncookie = &http.Cookie{Name: sessionCOOKIENAME, Path: "/", MaxAge: -1}
+		sessioncookie = &http.Cookie{Name: sessionCookieName, Path: "/", MaxAge: -1}
 		http.SetCookie(w, sessioncookie)
 	})
 }
@@ -154,7 +155,7 @@ func cleanupSessions() {
 	sessionsLock.Lock()
 
 	for key, value := range currentSessions {
-		if time.Since(value.lastActionAt) > (time.Second * timeOUT) {
+		if time.Since(value.lastActionAt) > (time.Second * timeOut) {
 			sessionsToClean = append(sessionsToClean, key)
 		}
 	}

@@ -6,9 +6,6 @@ volumes:
 services:
   vdcservice:
     image: rajchaudhuri/voxel-dockerclient:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - vdcvol1:/app/data

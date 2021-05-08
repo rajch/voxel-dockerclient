@@ -63,7 +63,7 @@ func initDockerProxy(mux *http.ServeMux) {
 		<-errc
 	})
 
-	// Hook the patch /api to the docker api
+	// Hook the path /api to the docker api
 	// Authorize it
 	mux.Handle("/api/", authorize(http.StripPrefix("/api/", revProxy)))
 

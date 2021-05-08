@@ -1,20 +1,24 @@
-FROM node:6.11-alpine AS nodebuilder
+FROM node:12.19-alpine AS nodebuilder
 RUN apk update && apk add git
-WORKDIR /root/vdc
+WORKDIR /vdc
 COPY client/ client/
 COPY public/ public/
-COPY package.json package.json
-RUN npm install && npm run build-public && npm run build-client-debug
+COPY package.json .
+COPY package-lock.json .
+RUN npm install && npm run build-public && npm run build-client-release
 
-FROM golang:1.8.3-alpine AS gobuilder
+FROM golang:1.16.4-alpine AS gobuilder
 RUN apk update && apk add git
-COPY server/ /go/src/github.com/rajch/voxel-dockerclient/server/
-WORKDIR /go/src/github.com/rajch/voxel-dockerclient/server/
-RUN go get golang.org/x/crypto/bcrypt
-RUN CGO_ENABLED='0' go build
+WORKDIR /vds
+COPY server/ ./server
+COPY go.* ./
+RUN go mod tidy
+RUN CGO_ENABLED='0' go build -o out/voxel-dockerserver server/*.go
 
-FROM scratch
-COPY --from=gobuilder /go/src/github.com/rajch/voxel-dockerclient/server/server /server/server
-COPY --from=nodebuilder /root/vdc/public/ public/
-ENTRYPOINT ["/server/server"]
-EXPOSE 80
+FROM scratch AS final
+WORKDIR /app
+COPY --from=nodebuilder /vdc/out .
+COPY --from=gobuilder /vds/out/voxel-dockerserver .
+ENTRYPOINT ["/app/voxel-dockerserver"]
+EXPOSE 8080
+VOLUME [ "/app/data" ]

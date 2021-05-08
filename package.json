@@ -1,20 +1,26 @@
 {
   "name": "voxel-dockerclient",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "An experimental minecraft-like docker client, built using voxel.js.",
   "main": "",
+  "config": {
+    "registry_user": "rajchaudhuri"
+  },
   "scripts": {
+    "check-env": "node -e 'console.log(process.env)'",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-public": "copyfiles --up 1 public/css/* public/fonts/* public/js/* public/textures/* public/*.html out && copyfiles -f node_modules/xterm/dist/xterm.js out/js && copyfiles -f node_modules/xterm/dist/xterm.css out/css",
     "clean-public": "rimraf out/css out/fonts out/js/*dialog.js out/js/xterm.js out/textures out/*.html",
     "build-client-debug": "browserify --debug client/main.js -o out/js/client.js",
     "build-client-release": "browserify client/main.js -o out/js/client.js",
     "clean-client": "rimraf out/js/client.js",
-    "build-server": "CGO_ENABLED='0' go build -o out/voxel-dockerserver server/*.go",
+    "build-server": "CGO_ENABLED='0' go build -o out/voxel-dockerserver -ldflags \"-X 'main.version=${npm_package_version}'\" server/*.go",
     "clean-server": "rimraf out/server",
     "build-debug": "npm run build-public && npm run build-client-debug && npm run build-server",
     "build": "npm run build-public && npm run build-client-release && npm run build-server",
-    "clean": "rimraf out/",
+    "build-docker": "docker image build -t ${npm_package_config_registry_user}/voxel-dockerclient:${npm_package_version} -f Dockerfile .",
+    "run-docker": "npm run build-docker && docker container run --rm --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock --publish 8080:8080 ${npm_package_config_registry_user}/voxel-dockerclient:${npm_package_version}",
+    "clean": "rimraf out/*",
     "standard": "standard client/** public/js/**"
   },
   "repository": {

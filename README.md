@@ -7,12 +7,17 @@ The dockercraft project turns the official Minecraft client into a docker client
 ## What is it not?
 voxel-dockerclient is not a serious tool for working with docker. It's a fun project (which may grow up to be a teaching aid someday).
 
-> WARNING: Please use voxel-dockerclient on your local machine only.
-> It currently doesn't support any authentication. 
+> WARNING: Please use voxel-dockerclient with care.
+> It requires access to the docker socket. 
 
 ## How to run voxel-dockerclient
+### Try it on Play With Docker
+The easiest way:
+
+[![Try in PWD](https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png)](https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/rajch/voxel-dockerclient/master/stack.yml)
+
 ### Using the docker image
-The easiest way is to pull the docker image, and run from that. The steps are as follows:
+The next easiest way is to pull the docker image, and run from that. The steps are as follows:
 
 1. Pull the docker image with
 
@@ -23,7 +28,7 @@ The easiest way is to pull the docker image, and run from that. The steps are as
 2. Run it with:
 
   ```
-  docker run -d -p 5000:80 -v /var/run/docker.sock:/var/run/docker.sock rajchaudhuri/voxel-dockerclient
+  docker run -d -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock rajchaudhuri/voxel-dockerclient
   ```
 
   > The  `-v /var/run/docker.sock:/var/run/docker.sock` is *very important*. 
@@ -31,22 +36,20 @@ The easiest way is to pull the docker image, and run from that. The steps are as
   > The container needs this to proxy a subset of the Docker remote API to voxel-dockerclient.
   > If you leave this out by mistake, voxel-dockerclient will not work.
 
-3. Point your browser to the container. If you run docker directly on your Linux machine, browse to: `http://localhost:5000`.
+3. Point your browser to the container. If you run docker directly on your Linux machine, browse to: `http://localhost:8080`.
   If you use docker-machine (for example, with the Docker Toolbox on Windows), find the IP address of your docker machine with
   
   ```
   docker-machine ip default
   ```
-  and then browse to that IP address using the port that you mapped in step 2. E.g.: `http://192.17.22.1:5000`
+  and then browse to that IP address using the port that you mapped in step 2. E.g.: `http://192.17.22.1:8080`
 
 ### Building with node.js and golang
-Alternatively, if you have node.js and golang installed on your docker host, you can clone the github repository, and build and run voxel-dockerclient yourself. The steps are:
+Alternatively, if you have node.js (>=v12.19.0) and golang (>=go1.16.4) installed on your docker host, you can clone the github repository, and build and run voxel-dockerclient yourself. The steps are:
 
 1. Clone the github repository into your Go workspace with:
 
   ```
-  mkdir -p "$GOPATH/src/github.com/rajch"
-  cd "$GOPATH/src/github.com/rajch"
   git clone https://github.com/rajch/voxel-dockerclient.git
   ```
 2. Change to the cloned directory and run
@@ -57,8 +60,13 @@ Alternatively, if you have node.js and golang installed on your docker host, you
 3. Run
 
   ```
-  npm run build-all
+  npm run build
   npm run run-docker
+  ```
+  or, if you are on Linux, or OSX, or WSL:
+  ```
+  make
+  make run-docker
   ```
 4. Browse to `http://localhost:8080`
 
@@ -79,9 +87,15 @@ docker build -t voxel-dockerclient:local .
 ```
 3. Run
 ```
-docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8081:80 voxel-dockerclient:local
+docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 voxel-dockerclient:local
 ```
-4. Browse to `http://localhost:8081`
+4. Browse to `http://localhost:8080`
+
+Or, you could use the provided docker compose manifest file, by running:
+
+```
+docker-compose up -d
+```
 
 Your logged-in user needs to be a member of the `docker` group for this to work.
 
@@ -89,7 +103,7 @@ Your logged-in user needs to be a member of the `docker` group for this to work.
 Instructions are available [here](https://rajch.github.io/voxel-dockerclient/).
 
 ## Browser compatibility
-voxel-dockerclient has been tested using recent Chrome and Firefox browsers, on Linux and Windows. Regrettably (*I mean it. I actually like that old browser*), it does not work with Internet Explorer.
+voxel-dockerclient has been tested using recent Chrome and Firefox browsers, on Linux and Windows.
 
 ## What's next?
 I intend to add the following capabilities quickly:
@@ -97,7 +111,7 @@ I intend to add the following capabilities quickly:
 * ~~`docker attach` equivalent~~ ** DONE
 * `docker pull` equivalent
 * A better interface for the `create` command
-* *Some* security
+* ~~*Some* security~~ ** DONE
 
 In the pipeline, further down, are:
 * volumes
@@ -109,7 +123,7 @@ I don't really know how far I want to take this. I do want voxel-dockerclient to
 ## How does it work?
 ~~On the server, voxel-dockerclient uses [Express](http://expressjs.com/) and the excellent [dockerode](https://github.com/apocas/dockerode) node module to provide a proxy for a subset of the Docker remote API.
 The voxel-dockerclient server is simply nginx, proxying the docker daemon's UNIX socket.~~
-The voxel-dockerclient server is a tiny golang program, which serves the client HTML/CSS/javascript, and provides a proxy for the docker API. At the moment, it proxies the full API with no authorization. This will change.
+The voxel-dockerclient server is a tiny golang program, which serves the client HTML/CSS/javascript, and provides a proxy for the docker API. At the moment, it proxies the full API with ~~no~~ some authorization. ~~This will change.~~
 
 On the client, it uses the brilliant [voxeljs](http://voxeljs.com/) family of node modules to render the UI, and the [axios](https://github.com/mzabriskie/axios) node module to communicate with the proxied API.
 
@@ -123,4 +137,4 @@ I would like to thank:
 * The fine folk of @docker, for Docker
 * The fine folk behind the voxeljs family of modules. @github/maxogden, @github/kumavis, @github/deathcap, @github/substack et al. These are really nice.
 * The authors of the dockerode and axios modules, although I'm not using dockerode any more.
-* My partner, Chitra Raghavan, for contributing the player model, testing, and bearing with me while I was building this
+* My partner, Chitra Raghavan (@github/chitradoc), for contributing the player model, testing, and bearing with me while I was building this

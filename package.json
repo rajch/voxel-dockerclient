@@ -55,6 +55,6 @@
     "browserify": "^13.3.0",
     "copyfiles": "^1.0.0",
     "rimraf": "^2.6.3",
-    "standard": "^10.0.3"
+    "standard": "^16.0.4"
   }
 }

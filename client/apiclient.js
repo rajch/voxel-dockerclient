@@ -1,33 +1,61 @@
-const axios = require('axios')
+"use strict"
 
 function apiclient (baseurl) {
   baseurl = baseurl || ''
 
-  function get (url, opts, successHandler, errorHandler, progressHandler) {
-    opts = opts || {}
+  function request (url, method, opts, successHandler, errorHandler) {
+    let requesturl = baseurl + url
 
-    const config = {}
-    config.params = opts
-    if (typeof progressHandler === 'function') {
-      config.onDownloadProgress = progressHandler
+    const requestopts = {
+      method
     }
 
-    axios.get(baseurl + url, config).then(function (response) { successHandler.call(axios, response) }).catch(
-      function (error) { errorHandler.call(axios, error) })
+    if (opts) {
+      if (method === 'GET') {
+        // GET calls should pass options in query string parameters
+        requesturl = requesturl + '?' + new URLSearchParams(opts).toString()
+      } else {
+        // All other verbs carry a JSON payload in the request body
+        requestopts.headers = { 'Content-type': 'application/json' }
+        requestopts.body = JSON.stringify(opts)
+      }
+    }
+
+    fetch(requesturl, requestopts)
+      .then(function (response) {
+        // Replicate axios behaviour of a non-ok response being an error
+        if (!response.ok) {
+          const errorvalue = new Error('Error status returned:' + response.status)
+          errorvalue.response = response
+          throw errorvalue
+        } else {
+          // Only .text() is okay with an empty response. Later, we will parse it
+          // into valid json.
+          // This is a promise, so gets taken care of in the next .then
+          return response.text()
+        }
+      })
+      .then(function (responseData) {
+        // Replicate axios behaviour of response body being sent back in
+        // data property
+        const responseBody = responseData ? { data: JSON.parse(responseData) } : {}
+        successHandler(responseBody)
+      })
+      .catch(function (error) {
+        errorHandler(error)
+      })
+  }
+
+  function get (url, opts, successHandler, errorHandler, progressHandler) {
+    request(url, 'GET', opts, successHandler, errorHandler)
   }
 
   function post (url, opts, successHandler, errorHandler) {
-    opts = opts || {}
-
-    axios.post(baseurl + url, opts).then(function (response) { successHandler.call(axios, response) }).catch(
-      function (error) { errorHandler.call(axios, error) })
+    request(url, 'POST', opts, successHandler, errorHandler)
   }
 
   function deleteverb (url, opts, successHandler, errorHandler) {
-    opts = opts || {}
-
-    axios.delete(baseurl + url, opts).then(function (response) { successHandler.call(axios, response) }).catch(
-      function (error) { errorHandler.call(axios, error) })
+    request(url, 'DELETE', opts, successHandler, errorHandler)
   }
 
   this.listcontainers = function (opts, successHandler, errorHandler) {
@@ -87,4 +115,5 @@ function apiclient (baseurl) {
     get('/images/json', opts, successHandler, errorHandler)
   }
 }
+
 module.exports = apiclient

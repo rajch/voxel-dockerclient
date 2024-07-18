@@ -73,6 +73,9 @@ const world = function (opts) {
   function listContainers (successHandler, errorHandler) {
     apiclient.listcontainers({},
       function (success) {
+        if (!success.data) {
+          return
+        }
         const returneddata = success.data.reverse()
         for (let i = 0; i < returneddata.length; i++) {
           cc.add(returneddata[i].Names[0].substring(1), returneddata[i])

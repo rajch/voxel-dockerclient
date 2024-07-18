@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -21,7 +20,7 @@ func initUser() {
 	dataDIR = filepath.Join(".", "data")
 	dataFILE = filepath.Join(dataDIR, "vdcpassword")
 
-	passwordhash, err := ioutil.ReadFile(dataFILE)
+	passwordhash, err := os.ReadFile(dataFILE)
 	if err == nil {
 		isUserInit = true
 		passwordhashstring = string(passwordhash)
@@ -43,7 +42,7 @@ func saveUser(username string, password string) bool {
 
 	newhash, _ := bcrypt.GenerateFromPassword([]byte(password), cryptCOST)
 
-	err := ioutil.WriteFile(dataFILE, newhash, os.ModePerm)
+	err := os.WriteFile(dataFILE, newhash, os.ModePerm)
 
 	if err == nil {
 		passwordhashstring = string(newhash)

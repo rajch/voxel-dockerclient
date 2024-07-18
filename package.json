@@ -1,6 +1,6 @@
 {
   "name": "voxel-dockerclient",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "An experimental minecraft-like docker client, built using voxel.js.",
   "main": "",
   "config": {
@@ -39,7 +39,6 @@
   },
   "homepage": "https://github.com/rajch/voxel-dockerclient#readme",
   "dependencies": {
-    "axios": ">=1.6.0",
     "shellwords": "^0.1.0",
     "voxel-console": "^1.0.1",
     "voxel-engine": "git+https://github.com/rajch/voxel-engine.git",
@@ -55,6 +54,6 @@
     "browserify": "^13.3.0",
     "copyfiles": "^1.0.0",
     "rimraf": "^2.6.3",
-    "standard": "^16.0.4"
+    "standard": "^17.1.0"
   }
 }

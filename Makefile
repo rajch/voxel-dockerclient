@@ -2,7 +2,7 @@
 #	docker-compose.yml, stack.yml and package.json
 VERSION_MAJOR ?= 0
 VERSION_MINOR ?= 4
-BUILD_NUMBER  ?= 0
+BUILD_NUMBER  ?= 1
 PATCH_STRING  ?= 
 
 VERSION_STRING = $(VERSION_MAJOR).$(VERSION_MINOR).$(BUILD_NUMBER)$(PATCH_STRING)

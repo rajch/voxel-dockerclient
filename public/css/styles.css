@@ -4,21 +4,39 @@ body {
 }
 
 .docker-dialog-content {
-  width: 300px;
-  height: 300px;
+  width: 80vw;
+  height: 80vh;
   display: flex;
   flex-direction: column;
+  font-family: sans-serif;
 }
 
-.docker-dialog-content h2 {
+.docker-dialog-content .headingsection {
+  display: flex;
+  flex-direction: row;
+  background-color: darkgray;
+}
+
+.headingsection .heading {
+  flex-grow: 1;
+  padding: 0.25rem 0.25rem;
+  font-weight: bold;
+}
+
+.headingsection .closebutton {
+  padding: 0.25rem 0.25rem;
+  cursor: pointer;
+}
+
+/* .docker-dialog-content h2 {
   font-size: 1.5em;
   padding: 0 5px;
   box-sizing: border-box;
-}
+} */
 
 .docker-dialog-content .content {
   flex: 1;
-  padding: 0 5px;
+  padding: 5px 5px;
   box-sizing: border-box;
 }
 

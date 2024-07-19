@@ -1,3 +1,5 @@
+'use strict'
+
 const ModalDialog = require('voxel-modal-dialog')
 
 /** The modal dialog shown in voxel-dockerclient
@@ -5,12 +7,29 @@ const ModalDialog = require('voxel-modal-dialog')
  *  @param {world} world - The voxel-dockerclient world object
  */
 function dialog (world) {
+  if (!this) {
+    return new dialog(world)
+  }
+  const self = this
   const opts = {}
   const box = document.createElement('div')
   box.className = 'docker-dialog-content'
 
-  const headingelement = document.createElement('h2')
-  box.appendChild(headingelement)
+  const headingsection = document.createElement('div')
+  headingsection.className = 'headingsection'
+  box.appendChild(headingsection)
+
+  const headingelement = document.createElement('div')
+  headingelement.className = 'heading'
+  headingsection.appendChild(headingelement)
+
+  const closebutton = document.createElement('div')
+  closebutton.className = 'closebutton'
+  closebutton.innerText = '✖'
+  closebutton.onclick = function closeButtonClick(e) {
+    self.close()
+  }
+  headingsection.appendChild(closebutton)
 
   const innerbox = document.createElement('div')
   innerbox.className = 'content'
@@ -23,30 +42,30 @@ function dialog (world) {
 
   const modaldialog = new ModalDialog(world.game(), opts)
 
-  function open () {
-    const parentElement = world.options().parentElement
-    const width = parentElement.clientWidth * 0.8
-    const height = parentElement.clientHeight * 0.8
+  function open() {
+    // const parentElement = world.options().parentElement
+    // const width = parentElement.clientWidth * 0.8
+    // const height = parentElement.clientHeight * 0.8
 
-    box.style.width = width + 'px'
-    box.style.height = height + 'px'
+    // box.style.width = width + 'px'
+    // box.style.height = height + 'px'
 
     modaldialog.open()
   }
 
-  function close () {
+  function close() {
     clean()
     modaldialog.close()
   }
 
-  function heading (text) {
+  function heading(text) {
     if (text) {
       headingelement.innerText = text
     }
     return headingelement.innerText
   }
 
-  function html (arg) {
+  function html(arg) {
     if (arg) {
       clean()
       innerbox.innerHTML = arg
@@ -56,7 +75,7 @@ function dialog (world) {
     return innerbox.innerHTML
   }
 
-  function iframe (src, initialmessage, messagehandler) {
+  function iframe(src, initialmessage, messagehandler) {
     clean()
 
     frame = document.createElement('iframe')
@@ -64,20 +83,20 @@ function dialog (world) {
 
     frame.src = src
     messageHandler = messagehandler
-    frame.onload = function onDialogIframeLoaded () {
+    frame.onload = function onDialogIframeLoaded() {
       window.addEventListener('message', messageHandler, false)
 
       postMessage(initialmessage)
     }
   };
 
-  function postMessage (message) {
+  function postMessage(message) {
     if (frame) {
       frame.contentWindow.postMessage(message, '*')
     }
   }
 
-  function clean () {
+  function clean() {
     if (frame) {
       if (frame.parentElement) {
         frame.parentElement.removeChild(frame)

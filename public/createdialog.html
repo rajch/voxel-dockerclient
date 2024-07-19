@@ -1,23 +1,28 @@
 <!doctype html>
 <html>
-  <head>
-      <link rel="stylesheet" href="css/dialogstyles.css">
-  </head>
-  <body>
-    <div class="dialog-container">
-      <div class="dialog-inputs">
-        <form>
-        <div><label for="containername">Name :</label><input type="text" id="containername" name="containername" ></div>
-        <div><label for="containerinteractive">Interactive :</label><input type="checkbox" id="containerinteractive" name="containerinteractive"></div>
+
+<head>
+  <link rel="stylesheet" href="css/dialogstyles.css">
+</head>
+
+<body>
+  <div class="dialog-container">
+    <div class="dialog-inputs">
+      <form>
+        <div><label for="containername">Name :</label><input type="text" id="containername" name="containername"></div>
+        <div><label for="containerinteractive">Interactive :</label><input type="checkbox" id="containerinteractive"
+            name="containerinteractive"></div>
         <div><label for="dockerimage">Image :</label><select id="dockerimage" name="dockerimage"></select></div>
-        <div><label for="containercmd">Command :</label><input type="text" id="containercmd" name="containercmd" ></div>
+        <div><label for="containercmd">Command :</label><input type="text" id="containercmd" name="containercmd"></div>
         <div class="errorRow">
-        <div id="nameerror" class="invisible">* Container name already used. Please choose another.</div>
+          <div id="nameerror" class="invisible">* Container name already used. Please choose another.</div>
         </div>
-        <div class="buttonRow"><input type="submit" id="submitbutton" value="Create"><input type="reset" id="resetbutton" value="Cancel"></div> 
-        </form>
-        <script src="js/createdialog.js"></script>
-      </div>
+        <div class="buttonRow"><input type="submit" id="submitbutton" value="Create"><input type="reset"
+            id="resetbutton" value="Cancel"></div>
+      </form>
+      <script src="js/createdialog.js"></script>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>

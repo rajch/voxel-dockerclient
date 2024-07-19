@@ -10,6 +10,11 @@ VERSION_STRING = $(VERSION_MAJOR).$(VERSION_MINOR).$(BUILD_NUMBER)$(PATCH_STRING
 IMAGE_TAG ?= $(VERSION_MAJOR).$(VERSION_MINOR).$(BUILD_NUMBER)
 REGISTRY_USER ?= rajchaudhuri
 
+.PHONY: usage
+usage:
+	@echo "Usage:"
+	@echo "make server|client|client-debug|debug|all|clean|image|run-image|clean-image"
+
 .PHONY: all
 all: client server
 
@@ -36,18 +41,18 @@ server: out/voxel-dockerserver
 .PHONY: debug
 debug: public client-debug server
 
-.PHONY: build-docker
-build-docker:
-	docker image build -t $(REGISTRY_USER)/voxel-dockerclient:$(VERSION_STRING) -f Dockerfile .
-
-.PHONY: run-docker
-run-docker: build-docker
-	docker container run --rm --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock --publish 8080:8080 $(REGISTRY_USER)/voxel-dockerclient:$(VERSION_STRING)
-
-.PHONY: clean-docker
-clean-docker:
-	docker image rm $(REGISTRY_USER)/voxel-dockerclient:$(VERSION_STRING)
-
 .PHONY: clean
 clean:
 	rm -rf out/*
+
+.PHONY: image
+image:
+	docker image build -t $(REGISTRY_USER)/voxel-dockerclient:$(VERSION_STRING) -f Dockerfile --build-arg VERSION_STRING=$(VERSION_STRING) .
+
+.PHONY: run-image
+run-image: image
+	docker container run --rm --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock --publish 8080:8080 $(REGISTRY_USER)/voxel-dockerclient:$(VERSION_STRING)
+
+.PHONY: clean-image
+clean-image:
+	docker image rm $(REGISTRY_USER)/voxel-dockerclient:$(VERSION_STRING)

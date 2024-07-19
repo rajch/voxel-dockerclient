@@ -1,19 +1,22 @@
-FROM node:12.19-alpine AS nodebuilder
+ARG VERSION_STRING="0.4.1"
+
+FROM node:20.11-alpine AS nodebuilder
 RUN apk update && apk add git
 WORKDIR /vdc
 COPY client/ client/
 COPY public/ public/
 COPY package.json .
 COPY package-lock.json .
-RUN npm install && npm run build-public && npm run build-client-release
+RUN npm ci && npm run build-public && npm run build-client-release
 
-FROM golang:1.16.4-alpine AS gobuilder
+FROM golang:1.22.2-alpine AS gobuilder
+ARG VERSION_STRING
 RUN apk update && apk add git
 WORKDIR /vds
 COPY server/ ./server
 COPY go.* ./
 RUN go mod tidy
-RUN CGO_ENABLED='0' go build -o out/voxel-dockerserver server/*.go
+RUN CGO_ENABLED='0' go build -o out/voxel-dockerserver -ldflags "-X 'main.version=${VERSION_STRING}'" server/*.go
 
 FROM scratch AS final
 WORKDIR /app

@@ -8,9 +8,9 @@
   },
   "scripts": {
     "check-env": "node -e 'console.log(process.env)'",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "standard client/** public/js/**",
     "build-public": "copyfiles --up 1 public/css/* public/fonts/* public/js/* public/textures/* public/*.html out && copyfiles -f node_modules/@xterm/xterm/lib/xterm.js out/js && copyfiles -f node_modules/@xterm/addon-fit/lib/addon-fit.js out/js && copyfiles -f node_modules/@xterm/xterm/css/xterm.css out/css",
-    "clean-public": "rimraf out/css out/fonts out/js/*dialog.js out/js/xterm.js out/textures out/*.html",
+    "clean-public": "rimraf out/css out/fonts out/js/*dialog.js out/js/xterm.js out/js/addon-fit.js out/textures out/*.html",
     "build-client-debug": "browserify --debug client/main.js -o out/js/client.js",
     "build-client-release": "browserify client/main.js -o out/js/client.js",
     "clean-client": "rimraf out/js/client.js",

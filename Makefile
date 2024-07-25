@@ -20,7 +20,7 @@ all: client server
 
 .PHONY: public
 public:
-	cp -r public/* out/
+	npm run build-public
 
 out/js/client.js: client/*.js
 	npm run build-client-release

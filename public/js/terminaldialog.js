@@ -1,3 +1,5 @@
+/* global WebSocket, Terminal, FitAddon */
+
 (function terminaldialog () {
   let sourceWindow
   let eventOrigin

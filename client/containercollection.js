@@ -73,7 +73,7 @@ const Container = function (world, name, dockerdata, startXposition) {
       mesh.position.set(containerstartpos[0], CONTAINERORIGIN[1] + CHEIGHT + 0.15, containerendpos[2])
 
       containertitle = game.addItem({
-        mesh: mesh,
+        mesh,
         size: 3,
         height: 1,
         blockscreation: true /*, velocity : { x : 0, y : 0, z : 0 } */

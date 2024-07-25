@@ -6,9 +6,9 @@ const ModalDialog = require('voxel-modal-dialog')
  *  @constructor
  *  @param {world} world - The voxel-dockerclient world object
  */
-function dialog (world) {
+function Dialog (world) {
   if (!this) {
-    return new dialog(world)
+    return new Dialog(world)
   }
   const self = this
   const opts = {}
@@ -141,4 +141,4 @@ function dialog (world) {
   this.postMessage = postMessage
 }
 
-module.exports = dialog
+module.exports = Dialog

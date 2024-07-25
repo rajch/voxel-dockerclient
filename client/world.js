@@ -65,7 +65,7 @@ const world = function (opts) {
   window._typeface_js = { faces: game.THREE.FontUtils.faces, loadFace: game.THREE.FontUtils.loadFace }
 
   // Add plugins
-  const plugins = require('voxel-plugins')(game, { require: require })
+  const plugins = require('voxel-plugins')(game, { require })
   plugins.add('voxel-keys', {})
   plugins.add('voxel-console', {})
 

@@ -128,21 +128,21 @@ function commands (world) {
         const records = []
         const decoder = new TextDecoder()
 
-        let currentIndex = 0;
+        let currentIndex = 0
         while (currentIndex < byteArray.length) {
           // Read the header
           // First byte contains record type. 1 is STDOUT, 2 is STDERR
-          const type = byteArray[currentIndex];
+          const type = byteArray[currentIndex]
           // Fifth through eightth bytes contain big-ending integer
           // which is the length of the message
           const recordLength = (byteArray[currentIndex + 4] << 24) |
             (byteArray[currentIndex + 5] << 16) |
             (byteArray[currentIndex + 6] << 8) |
-            byteArray[currentIndex + 7];
+            byteArray[currentIndex + 7]
 
           if (recordLength > 0) {
             // Extract the message
-            const messageBytes = byteArray.slice(currentIndex + 8, currentIndex + 8 + recordLength);
+            const messageBytes = byteArray.slice(currentIndex + 8, currentIndex + 8 + recordLength)
 
             const message = decoder.decode(messageBytes)
             const newelement = document.createElement('div')
@@ -150,11 +150,11 @@ function commands (world) {
             newelement.classList.add('logmessage')
             newelement.innerText = message
             const record = newelement.outerHTML
-            records.push(record);
+            records.push(record)
           }
 
           // Move to the next record
-          currentIndex += 8 + recordLength;
+          currentIndex += 8 + recordLength
         }
 
         return records.join('')
@@ -307,7 +307,7 @@ function commands (world) {
       function verifynameavailable (name) {
         let result = true
         if (world.containers.getContainer(name)) {
-          dialog.postMessage({ message: 'containerexists', data: { name: name } })
+          dialog.postMessage({ message: 'containerexists', data: { name } })
           result = false
         }
         return result

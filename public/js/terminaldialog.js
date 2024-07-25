@@ -61,6 +61,8 @@
         terminal.on('data', function (data) {
           socket.send(data)
         })
+
+        terminal.focus()
       }
     }
   }

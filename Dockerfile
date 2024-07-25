@@ -1,4 +1,4 @@
-ARG VERSION_STRING="0.4.1"
+ARG VERSION_STRING="0.4.2"
 
 FROM node:20.11-alpine AS nodebuilder
 RUN apk update && apk add git

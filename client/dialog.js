@@ -26,7 +26,7 @@ function dialog (world) {
   const closebutton = document.createElement('div')
   closebutton.className = 'closebutton'
   closebutton.innerText = '✖'
-  closebutton.onclick = function closeButtonClick(e) {
+  closebutton.onclick = function closeButtonClick (e) {
     self.close()
   }
   headingsection.appendChild(closebutton)
@@ -42,30 +42,23 @@ function dialog (world) {
 
   const modaldialog = new ModalDialog(world.game(), opts)
 
-  function open() {
-    // const parentElement = world.options().parentElement
-    // const width = parentElement.clientWidth * 0.8
-    // const height = parentElement.clientHeight * 0.8
-
-    // box.style.width = width + 'px'
-    // box.style.height = height + 'px'
-
+  function open () {
     modaldialog.open()
   }
 
-  function close() {
+  function close () {
     clean()
     modaldialog.close()
   }
 
-  function heading(text) {
+  function heading (text) {
     if (text) {
       headingelement.innerText = text
     }
     return headingelement.innerText
   }
 
-  function html(arg) {
+  function html (arg) {
     if (arg) {
       clean()
       innerbox.innerHTML = arg
@@ -75,7 +68,7 @@ function dialog (world) {
     return innerbox.innerHTML
   }
 
-  function iframe(src, initialmessage, messagehandler) {
+  function iframe (src, initialmessage, messagehandler) {
     clean()
 
     frame = document.createElement('iframe')
@@ -83,20 +76,20 @@ function dialog (world) {
 
     frame.src = src
     messageHandler = messagehandler
-    frame.onload = function onDialogIframeLoaded() {
+    frame.onload = function onDialogIframeLoaded () {
       window.addEventListener('message', messageHandler, false)
 
       postMessage(initialmessage)
     }
   };
 
-  function postMessage(message) {
+  function postMessage (message) {
     if (frame) {
       frame.contentWindow.postMessage(message, '*')
     }
   }
 
-  function clean() {
+  function clean () {
     if (frame) {
       if (frame.parentElement) {
         frame.parentElement.removeChild(frame)

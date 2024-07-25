@@ -9,7 +9,7 @@
   "scripts": {
     "check-env": "node -e 'console.log(process.env)'",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-public": "copyfiles --up 1 public/css/* public/fonts/* public/js/* public/textures/* public/*.html out && copyfiles -f node_modules/xterm/dist/xterm.js out/js && copyfiles -f node_modules/xterm/dist/xterm.css out/css",
+    "build-public": "copyfiles --up 1 public/css/* public/fonts/* public/js/* public/textures/* public/*.html out && copyfiles -f node_modules/@xterm/xterm/lib/xterm.js out/js && copyfiles -f node_modules/@xterm/addon-fit/lib/addon-fit.js out/js && copyfiles -f node_modules/@xterm/xterm/css/xterm.css out/css",
     "clean-public": "rimraf out/css out/fonts out/js/*dialog.js out/js/xterm.js out/textures out/*.html",
     "build-client-debug": "browserify --debug client/main.js -o out/js/client.js",
     "build-client-release": "browserify client/main.js -o out/js/client.js",
@@ -40,6 +40,8 @@
   },
   "homepage": "https://github.com/rajch/voxel-dockerclient#readme",
   "dependencies": {
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
     "shellwords": "^0.1.0",
     "voxel-console": "^1.0.1",
     "voxel-engine": "git+https://github.com/rajch/voxel-engine.git",
@@ -48,8 +50,7 @@
     "voxel-modal-dialog": "^1.0.1",
     "voxel-player": "^0.1.0",
     "voxel-plugins": "^0.5.0",
-    "voxel-walk": "0.0.5",
-    "xterm": "^3.8.1"
+    "voxel-walk": "0.0.5"
   },
   "devDependencies": {
     "browserify": "^13.3.0",

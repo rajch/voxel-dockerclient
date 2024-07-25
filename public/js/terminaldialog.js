@@ -9,10 +9,6 @@
 
   window.addEventListener('message', onMessageReceived, false)
 
-  function ab2str (buf) {
-    return String.fromCharCode.apply(null, new Uint8Array(buf))
-  }
-
   function onMessageReceived (event) {
     sourceWindow = event.source
     eventOrigin = event.origin
@@ -28,7 +24,12 @@
           cols: 80,
           rows: 26
         })
+
+        const fitaddon = new FitAddon.FitAddon()
+
         terminal.open(document.getElementById('terminal-container'))
+        terminal.loadAddon(fitaddon)
+        fitaddon.fit()
 
         const wsUri = 'ws://' + window.location.host + '/websocket/containers/' + containername +
           '/attach/ws?logs=0&stderr=1&stdout=1&stream=1&stdin=1'
@@ -47,7 +48,8 @@
 
         socket.onmessage = function onMessage (evt) {
           if (evt.data instanceof ArrayBuffer) {
-            terminal.write(ab2str(evt.data))
+            const binarydata = new Uint8Array(evt.data)
+            terminal.write(binarydata)
           } else {
             terminal.write(evt.data)
           }
@@ -58,7 +60,7 @@
           errorcreated = true
         }
 
-        terminal.on('data', function (data) {
+        terminal.onData(function terminalOnData (data) {
           socket.send(data)
         })
 

@@ -1,4 +1,4 @@
-"use strict"
+'use strict'
 
 function apiclient (baseurl) {
   baseurl = baseurl || ''

@@ -3,7 +3,7 @@
 function apiclient (baseurl) {
   baseurl = baseurl || ''
 
-  function request (url, method, opts, successHandler, errorHandler) {
+  function createfetcher (url, method, opts) {
     let requesturl = baseurl + url
 
     const requestopts = {
@@ -21,7 +21,7 @@ function apiclient (baseurl) {
       }
     }
 
-    fetch(requesturl, requestopts)
+    return fetch(requesturl, requestopts)
       .then(function (response) {
         // Replicate axios behaviour of a non-ok response being an error
         if (!response.ok) {
@@ -29,33 +29,52 @@ function apiclient (baseurl) {
           errorvalue.response = response
           throw errorvalue
         } else {
-          // Only .text() is okay with an empty response. Later, we will parse it
-          // into valid json.
-          // This is a promise, so gets taken care of in the next .then
-          return response.text()
+          return response
         }
-      })
-      .then(function (responseData) {
-        // Replicate axios behaviour of response body being sent back in
-        // data property
-        const responseBody = responseData ? { data: JSON.parse(responseData) } : {}
-        successHandler(responseBody)
-      })
-      .catch(function (error) {
-        errorHandler(error)
       })
   }
 
-  function get (url, opts, successHandler, errorHandler, progressHandler) {
-    request(url, 'GET', opts, successHandler, errorHandler)
+  function requestJSON (url, method, opts, successHandler, errorHandler) {
+    const fetcher = createfetcher(url, method, opts)
+    fetcher.then(function (response) {
+      // Only .text() is okay with an empty response. Later, we will parse it
+      // into valid json.
+      // This is a promise, so gets taken care of in the next .then
+      return response.text()
+    }).then(function (responseData) {
+      // Replicate axios behaviour of response body being sent back in
+      // data property
+      const responseBody = responseData ? { data: JSON.parse(responseData) } : {}
+      successHandler(responseBody)
+    }).catch(function (error) {
+      errorHandler(error)
+    })
+  }
+
+  function requestBuffer (url, method, opts, successHandler, errorHandler) {
+    const fetcher = createfetcher(url, method, opts)
+    fetcher.then(function (response) {
+      return response.arrayBuffer()
+    }).then(function (responseData) {
+      // Replicate axios behaviour of response body being sent back in
+      // data property
+      const responseBody = responseData ? { data: responseData } : {}
+      successHandler(responseBody)
+    }).catch(function (error) {
+      errorHandler(error)
+    })
+  }
+
+  function get (url, opts, successHandler, errorHandler) {
+    requestJSON(url, 'GET', opts, successHandler, errorHandler)
   }
 
   function post (url, opts, successHandler, errorHandler) {
-    request(url, 'POST', opts, successHandler, errorHandler)
+    requestJSON(url, 'POST', opts, successHandler, errorHandler)
   }
 
   function deleteverb (url, opts, successHandler, errorHandler) {
-    request(url, 'DELETE', opts, successHandler, errorHandler)
+    requestJSON(url, 'DELETE', opts, successHandler, errorHandler)
   }
 
   this.listcontainers = function (opts, successHandler, errorHandler) {
@@ -83,12 +102,12 @@ function apiclient (baseurl) {
     get('/containers/' + name + '/top', opts, successHandler, errorHandler)
   }
 
-  this.logscontainer = function (name, opts, successHandler, errorHandler, progressHandler) {
+  this.logscontainer = function (name, opts, successHandler, errorHandler) {
     opts = opts || {}
     opts.stdout = true
     opts.stderr = true
 
-    get('/containers/' + name + '/logs', opts, successHandler, errorHandler, progressHandler)
+    requestBuffer('/containers/' + name + '/logs', 'GET', opts, successHandler, errorHandler)
   }
 
   this.startcontainer = function (name, opts, successHandler, errorHandler) {

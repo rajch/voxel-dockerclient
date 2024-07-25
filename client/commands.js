@@ -108,23 +108,56 @@ function commands (world) {
       world.apiClient.logscontainer(
         container.name(),
         {},
-        function () { },
-        function () { },
-        function onLogsProgress (event) { dialog.html(formatResponse(event.currentTarget.responseText)) })
-
-      function formatResponse (respText) {
-        const respArray = respText.split('\n')
-        const formattedArray = respArray.map(function formatter (index) {
-          const firstchar = index.charCodeAt(0)
-          let result = index.substring(2)
-          if (firstchar === 1) {
-            result = '<div class="stdout">STDOUT:' + result + '</div>'
-          } else if (firstchar === 2) {
-            result = '<div class="stdout">STDERR:' + result + '</div>'
+        function onLogsSuccess (success) {
+          if (success && (success.data instanceof ArrayBuffer)) {
+            const logdata = processLogdata(success.data)
+            dialog.html(logdata)
+          } else {
+            dialog.html('Could not fetch logs.')
           }
-          return result
-        })
-        return (formattedArray.join(''))
+        },
+        onRequestError
+      )
+
+      function processLogdata (databuffer) {
+        // This function processes a Docker container log retrieved
+        // via the API, as described in the following article:
+        // https://ahmet.im/blog/docker-logs-api-binary-format-explained/
+        // Many thanks to the author.
+        const byteArray = new Uint8Array(databuffer)
+        const records = []
+        const decoder = new TextDecoder()
+
+        let currentIndex = 0;
+        while (currentIndex < byteArray.length) {
+          // Read the header
+          // First byte contains record type. 1 is STDOUT, 2 is STDERR
+          const type = byteArray[currentIndex];
+          // Fifth through eightth bytes contain big-ending integer
+          // which is the length of the message
+          const recordLength = (byteArray[currentIndex + 4] << 24) |
+            (byteArray[currentIndex + 5] << 16) |
+            (byteArray[currentIndex + 6] << 8) |
+            byteArray[currentIndex + 7];
+
+          if (recordLength > 0) {
+            // Extract the message
+            const messageBytes = byteArray.slice(currentIndex + 8, currentIndex + 8 + recordLength);
+
+            const message = decoder.decode(messageBytes)
+            const newelement = document.createElement('div')
+            newelement.setAttribute('data-type', type)
+            newelement.classList.add('logmessage')
+            newelement.innerText = message
+            const record = newelement.outerHTML
+            records.push(record);
+          }
+
+          // Move to the next record
+          currentIndex += 8 + recordLength;
+        }
+
+        return records.join('')
       }
     },
     'containercommand')
@@ -301,6 +334,7 @@ function commands (world) {
           ],
           ['R key', 'toggle between first-person and third-person views.'],
           ['I key', 'to inspect the container in front of you. You have to stand right in front of a container.'],
+          ['L key', 'to see the logs of the container in front of you. You have to stand right in front of a container.'],
           [
             'Esc key',
             'remove focus from the window. You will have to click the window again for things to work. Try not to press Esc :)'

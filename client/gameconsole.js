@@ -9,6 +9,7 @@ const dockergameconsole = function (world) {
 
   voxelconsole.keys.down.on('openconsole', openConsole)
   voxelconsole.keys.down.on('inspect', function () { processInput('inspect', true) })
+  voxelconsole.keys.down.on('logs', function () { processInput('logs', true) })
 
   widget.on('input', processInput)
 

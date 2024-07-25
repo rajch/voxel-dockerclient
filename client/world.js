@@ -39,7 +39,8 @@ const world = function (opts) {
     '<control>': 'alt',
     '`': 'openconsole',
     I: 'inspect',
-    R: 'pov'
+    R: 'pov',
+    L: 'logs'
   }
   opts.parentElement = opts.parentElement || document.body
   opts.container = opts.parentElement

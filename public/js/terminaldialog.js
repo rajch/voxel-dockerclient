@@ -1,4 +1,4 @@
-/* global WebSocket, Terminal, FitAddon */
+/* global WebSocket, Terminal, FitAddon, AttachAddon */
 
 (function terminaldialog () {
   let sourceWindow
@@ -24,14 +24,10 @@
 
         terminal = new Terminal({
           cols: 80,
-          rows: 26
+          rows: 24
         })
 
-        const fitaddon = new FitAddon.FitAddon()
-
         terminal.open(document.getElementById('terminal-container'))
-        terminal.loadAddon(fitaddon)
-        fitaddon.fit()
 
         const wsUri = 'ws://' + window.location.host + '/websocket/containers/' + containername +
           '/attach/ws?logs=0&stderr=1&stdout=1&stream=1&stdin=1'
@@ -39,32 +35,39 @@
         socket = new WebSocket(wsUri)
         socket.binaryType = 'arraybuffer'
 
-        socket.onopen = function onOpen (evt) {
-          terminal.writeln("Session started. If you don't see a prompt, press enter or/and Ctrl+L")
-        }
+        const attachaddon = new AttachAddon.AttachAddon(socket, { bidirectional: true })
+        terminal.loadAddon(attachaddon)
 
-        socket.onclose = function onClose (evt) {
-          terminal.writeln('Session terminated')
-          if (!errorcreated) { sendMessage({ message: 'cancel' }) }
-        }
+        const fitaddon = new FitAddon.FitAddon()
+        terminal.loadAddon(fitaddon)
+        fitaddon.fit()
 
-        socket.onmessage = function onMessage (evt) {
-          if (evt.data instanceof ArrayBuffer) {
-            const binarydata = new Uint8Array(evt.data)
-            terminal.write(binarydata)
-          } else {
-            terminal.write(evt.data)
-          }
-        }
+        // socket.onopen = function onOpen (evt) {
+        //   terminal.writeln("Session started. If you don't see a prompt, press enter or/and Ctrl+L")
+        // }
 
-        socket.onerror = function onError (evt) {
-          terminal.writeln('ERROR:' + JSON.stringify(evt))
-          errorcreated = true
-        }
+        // socket.onclose = function onClose (evt) {
+        //   terminal.writeln('Session terminated')
+        //   if (!errorcreated) { sendMessage({ message: 'cancel' }) }
+        // }
 
-        terminal.onData(function terminalOnData (data) {
-          socket.send(data)
-        })
+        // socket.onmessage = function onMessage (evt) {
+        //   if (evt.data instanceof ArrayBuffer) {
+        //     const binarydata = new Uint8Array(evt.data)
+        //     terminal.write(binarydata)
+        //   } else {
+        //     terminal.write(evt.data)
+        //   }
+        // }
+
+        // socket.onerror = function onError (evt) {
+        //   terminal.writeln('ERROR:' + JSON.stringify(evt))
+        //   errorcreated = true
+        // }
+
+        // terminal.onData(function terminalOnData (data) {
+        //   socket.send(data)
+        // })
 
         terminal.focus()
       }

@@ -2,7 +2,7 @@ Param(
     [string] $VersionMajor = (property VERSION_MAJOR "0"),
     [string] $VersionMinor = (property VERSION_MINOR "4"),
     [string] $BuildNumber  = (property BUILD_NUMBER  "2"),
-    [string] $PatchString  = (property PATCH_NUMBER  ""),
+    [string] $PatchString  = (property PATCH_NUMBER  "-patchws"),
     [string] $RegistryUser = (property REGISTRY_USER "rajchaudhuri")
 )
 

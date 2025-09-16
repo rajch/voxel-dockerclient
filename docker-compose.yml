@@ -1,11 +1,9 @@
-version: '3.4'
-
 volumes:
   vdcvol1:
 
 services:
   vdcservice:
-    image: rajchaudhuri/voxel-dockerclient:0.4.2
+    image: rajchaudhuri/voxel-dockerclient:0.4.3
     build:
       context: .
       dockerfile: Dockerfile
